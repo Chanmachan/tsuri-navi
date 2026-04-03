@@ -1,0 +1,124 @@
+import { getDb } from "./client";
+import type { SpotType } from "./schema";
+
+interface PresetSpot {
+	name: string;
+	latitude: number;
+	longitude: number;
+	type: SpotType;
+	prefecture: string;
+}
+
+const PRESET_SPOTS: PresetSpot[] = [
+	// いわき市周辺
+	{
+		name: "久ノ浜漁港",
+		latitude: 37.1117,
+		longitude: 141.0183,
+		type: "漁港",
+		prefecture: "福島",
+	},
+	{
+		name: "四倉漁港",
+		latitude: 37.0844,
+		longitude: 141.0063,
+		type: "漁港",
+		prefecture: "福島",
+	},
+	{
+		name: "小名浜港",
+		latitude: 36.9358,
+		longitude: 140.9003,
+		type: "漁港",
+		prefecture: "福島",
+	},
+	{
+		name: "中之作漁港",
+		latitude: 36.9758,
+		longitude: 140.9228,
+		type: "漁港",
+		prefecture: "福島",
+	},
+	{
+		name: "豊間の磯",
+		latitude: 36.9611,
+		longitude: 140.8778,
+		type: "磯",
+		prefecture: "福島",
+	},
+	{
+		name: "江名港",
+		latitude: 36.9508,
+		longitude: 140.8842,
+		type: "漁港",
+		prefecture: "福島",
+	},
+	// 宮城
+	{
+		name: "桃浦漁港",
+		latitude: 38.3444,
+		longitude: 141.4819,
+		type: "漁港",
+		prefecture: "宮城",
+	},
+	// 四国
+	{
+		name: "宇佐漁港",
+		latitude: 33.5081,
+		longitude: 133.3636,
+		type: "漁港",
+		prefecture: "高知",
+	},
+	{
+		name: "室戸岬",
+		latitude: 33.2535,
+		longitude: 134.1795,
+		type: "磯",
+		prefecture: "高知",
+	},
+	{
+		name: "鳴門周辺",
+		latitude: 34.2492,
+		longitude: 134.6231,
+		type: "漁港",
+		prefecture: "徳島",
+	},
+	{
+		name: "佐田岬",
+		latitude: 33.3458,
+		longitude: 132.0183,
+		type: "磯",
+		prefecture: "愛媛",
+	},
+	{
+		name: "庵治漁港",
+		latitude: 34.3481,
+		longitude: 134.1431,
+		type: "漁港",
+		prefecture: "香川",
+	},
+];
+
+export function seedPresetSpots(): void {
+	const db = getDb();
+
+	const insert = db.prepare(`
+    INSERT OR IGNORE INTO spots (name, latitude, longitude, type, prefecture, is_preset)
+    VALUES (@name, @latitude, @longitude, @type, @prefecture, 1)
+  `);
+
+	const insertMany = db.transaction((spots: PresetSpot[]) => {
+		for (const spot of spots) {
+			insert.run(spot);
+		}
+	});
+
+	insertMany(PRESET_SPOTS);
+
+	console.log(`Seeded ${PRESET_SPOTS.length} preset spots.`);
+}
+
+// Run directly: npx tsx src/db/seed.ts
+if (process.argv[1] && process.argv[1].endsWith("seed.ts")) {
+	seedPresetSpots();
+}
