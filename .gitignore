@@ -37,3 +37,6 @@
 
 # Local Claude Code settings
 settings.local.json
+
+# Node.js
+node_modules/
