@@ -14,7 +14,12 @@
       "Bash(git stash:*)",
       "Bash(git rebase:*)",
       "Bash(git rm:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+      "Bash(npx vitest:*)",
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(npx tsc:*)"
     ]
   }
 }
