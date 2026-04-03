@@ -4,9 +4,9 @@ pre-commit:
     doc-health:
       run: bash scripts/check-doc-health.sh
     # 言語に応じて以下を有効化してください
-    # lint-ts:
-    #   glob: "*.{ts,tsx,js,jsx}"
-    #   run: npx oxlint {staged_files}
+    lint-ts:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: npx oxlint {staged_files}
     # lint-py:
     #   glob: "*.py"
     #   run: ruff check {staged_files}
