@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(docker compose:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(make test:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "Bash(git pull:*)",
+      "Bash(uv run:*)",
+      "Bash(git stash:*)",
+      "Bash(git rebase:*)",
+      "Bash(git rm:*)",
+      "Bash(git fetch:*)"
+    ]
+  }
+}
