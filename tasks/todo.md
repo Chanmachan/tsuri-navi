@@ -6,12 +6,12 @@
 ## Planned steps
 
 ### Phase 1: プロジェクト基盤
-- [ ] Next.js + TypeScript + Tailwind CSS プロジェクト初期化
-- [ ] PWA設定（next-pwa、manifest.json、Service Worker）
-- [ ] SQLiteセットアップ（better-sqlite3）
-- [ ] DB スキーマ設計・マイグレーション（釣り場マスタ、天気キャッシュ、スコア、ユーザー設定）
-- [ ] プリセット釣り場データ投入（いわき・宮城・四国）
-- [ ] lint / test / CI の基本設定
+- [x] Next.js + TypeScript + Tailwind CSS プロジェクト初期化
+- [x] PWA設定（next-pwa、manifest.json、Service Worker）
+- [x] SQLiteセットアップ（better-sqlite3）
+- [x] DB スキーマ設計・マイグレーション（釣り場マスタ、天気キャッシュ、スコア、ユーザー設定）
+- [x] プリセット釣り場データ投入（いわき・宮城・四国）
+- [x] lint / test / CI の基本設定
 
 ### Phase 2: データ取得レイヤー
 - [ ] Open-Meteo Weather API クライアント実装（気温・風速・風向・降水量・気圧・天気コード）

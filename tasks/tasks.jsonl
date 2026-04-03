@@ -1,0 +1,41 @@
+{"id":"p1-1","phase":1,"title":"Dockerfile + docker-compose.yml作成","status":"done","agent":"","files":["Dockerfile","docker-compose.yml",".dockerignore"],"depends_on":[]}
+{"id":"p1-2","phase":1,"title":"Next.js + TypeScript + Tailwind CSS初期化","status":"done","agent":"","files":["package.json","tsconfig.json","tailwind.config.ts","postcss.config.js","next.config.ts","src/app/layout.tsx","src/app/page.tsx","src/app/globals.css"],"depends_on":["p1-1"]}
+{"id":"p1-3","phase":1,"title":"PWA設定","status":"done","agent":"","files":["public/manifest.json","src/app/sw.ts"],"depends_on":["p1-2"]}
+{"id":"p1-4","phase":1,"title":"SQLiteセットアップ","status":"done","agent":"","files":["src/lib/db/index.ts","src/lib/db/schema.sql","src/lib/db/migrate.ts"],"depends_on":["p1-2"]}
+{"id":"p1-5","phase":1,"title":"プリセット釣り場データ投入","status":"done","agent":"","files":["src/lib/db/seed.ts","src/data/preset-spots.json"],"depends_on":["p1-4"]}
+{"id":"p1-6","phase":1,"title":"lint/test基本設定","status":"done","agent":"","files":["vitest.config.ts","biome.json",".eslintrc.js"],"depends_on":["p1-2"]}
+{"id":"p2-1","phase":2,"title":"Open-Meteo Weather APIクライアント","status":"todo","agent":"api-client","files":["src/lib/api/open-meteo-weather.ts","src/lib/api/__tests__/open-meteo-weather.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-2","phase":2,"title":"Open-Meteo Marine APIクライアント","status":"todo","agent":"api-client","files":["src/lib/api/open-meteo-marine.ts","src/lib/api/__tests__/open-meteo-marine.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-3","phase":2,"title":"tide736.net APIクライアント","status":"todo","agent":"api-client","files":["src/lib/api/tide736.ts","src/lib/api/__tests__/tide736.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-4","phase":2,"title":"日の出・日の入り計算","status":"todo","agent":"score-engine","files":["src/lib/utils/sun.ts","src/lib/utils/__tests__/sun.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-5","phase":2,"title":"月齢計算","status":"todo","agent":"score-engine","files":["src/lib/utils/moon.ts","src/lib/utils/__tests__/moon.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-6","phase":2,"title":"データ取得バッチ","status":"todo","agent":"","files":["src/lib/batch/collector.ts","src/lib/batch/__tests__/collector.test.ts"],"depends_on":["p2-1","p2-2","p2-3"]}
+{"id":"p2-7","phase":2,"title":"DBキャッシュ保存","status":"todo","agent":"","files":["src/lib/db/cache.ts","src/lib/db/__tests__/cache.test.ts"],"depends_on":["p1-4","p2-6"]}
+{"id":"p3-1","phase":3,"title":"スコア計算ロジック","status":"todo","agent":"score-engine","files":["src/lib/score/calculator.ts","src/lib/score/__tests__/calculator.test.ts","src/types/score.ts"],"depends_on":["p2-4","p2-5"]}
+{"id":"p3-2","phase":3,"title":"時間帯別スコア","status":"todo","agent":"score-engine","files":["src/lib/score/hourly.ts","src/lib/score/__tests__/hourly.test.ts"],"depends_on":["p3-1"]}
+{"id":"p3-3","phase":3,"title":"ベストタイム抽出","status":"todo","agent":"score-engine","files":["src/lib/score/best-time.ts","src/lib/score/__tests__/best-time.test.ts"],"depends_on":["p3-2"]}
+{"id":"p3-4","phase":3,"title":"日単位サマリースコア","status":"todo","agent":"score-engine","files":["src/lib/score/daily-summary.ts","src/lib/score/__tests__/daily-summary.test.ts"],"depends_on":["p3-2"]}
+{"id":"p3-5","phase":3,"title":"バッチスコア計算・DB保存","status":"todo","agent":"","files":["src/lib/batch/score-batch.ts","src/lib/batch/__tests__/score-batch.test.ts"],"depends_on":["p3-1","p2-7"]}
+{"id":"p4-1","phase":4,"title":"ホーム画面レイアウト","status":"todo","agent":"ui-component","files":["src/app/page.tsx","src/components/SpotList.tsx"],"depends_on":["p3-4"]}
+{"id":"p4-2","phase":4,"title":"週間カレンダー","status":"todo","agent":"ui-component","files":["src/components/WeeklyCalendar.tsx","src/components/__tests__/WeeklyCalendar.test.tsx"],"depends_on":["p3-4"]}
+{"id":"p4-3","phase":4,"title":"ベストタイム表示","status":"todo","agent":"ui-component","files":["src/components/BestTime.tsx","src/components/__tests__/BestTime.test.tsx"],"depends_on":["p3-3"]}
+{"id":"p4-4","phase":4,"title":"API Routes","status":"todo","agent":"","files":["src/app/api/scores/route.ts","src/app/api/weather/route.ts","src/app/api/spots/route.ts"],"depends_on":["p3-5","p2-7"]}
+{"id":"p5-1","phase":5,"title":"スコア表示+内訳","status":"todo","agent":"ui-component","files":["src/components/ScoreCard.tsx","src/components/__tests__/ScoreCard.test.tsx"],"depends_on":["p3-1"]}
+{"id":"p5-2","phase":5,"title":"時間帯スコアバー","status":"todo","agent":"ui-component","files":["src/components/HourlyScoreBar.tsx","src/components/__tests__/HourlyScoreBar.test.tsx"],"depends_on":["p3-2"]}
+{"id":"p5-3","phase":5,"title":"タイドグラフ","status":"todo","agent":"ui-component","files":["src/components/TideChart.tsx","src/components/__tests__/TideChart.test.tsx"],"depends_on":["p2-3"]}
+{"id":"p5-4","phase":5,"title":"天気テーブル","status":"todo","agent":"ui-component","files":["src/components/WeatherTable.tsx","src/components/__tests__/WeatherTable.test.tsx"],"depends_on":["p2-1","p2-2"]}
+{"id":"p5-5","phase":5,"title":"魚種提案","status":"todo","agent":"ui-component","files":["src/components/FishSuggestion.tsx","src/components/__tests__/FishSuggestion.test.tsx","src/data/fish-master.json"],"depends_on":[]}
+{"id":"p5-6","phase":5,"title":"釣り場詳細画面","status":"todo","agent":"","files":["src/app/spots/[id]/page.tsx"],"depends_on":["p5-1","p5-2","p5-3","p5-4","p5-5"]}
+{"id":"p6-1","phase":6,"title":"地図コンポーネント","status":"todo","agent":"ui-component","files":["src/components/Map.tsx","src/components/__tests__/Map.test.tsx"],"depends_on":["p1-5"]}
+{"id":"p6-2","phase":6,"title":"ポイント追加機能","status":"todo","agent":"","files":["src/components/SpotEditor.tsx","src/app/api/spots/route.ts"],"depends_on":["p6-1"]}
+{"id":"p6-3","phase":6,"title":"お気に入り管理","status":"todo","agent":"","files":["src/components/FavoriteButton.tsx","src/lib/db/favorites.ts"],"depends_on":["p1-4"]}
+{"id":"p7-1","phase":7,"title":"OSRMセルフホスト","status":"todo","agent":"","files":["docker-compose.yml","scripts/setup-osrm.sh"],"depends_on":["p1-1"]}
+{"id":"p7-2","phase":7,"title":"OSRMクライアント","status":"todo","agent":"api-client","files":["src/lib/api/osrm.ts","src/lib/api/__tests__/osrm.test.ts"],"depends_on":["p7-1"]}
+{"id":"p7-3","phase":7,"title":"検索画面UI","status":"todo","agent":"ui-component","files":["src/app/search/page.tsx","src/components/DistanceSlider.tsx","src/components/SearchResults.tsx"],"depends_on":["p7-2","p3-4"]}
+{"id":"p8-1","phase":8,"title":"Web Pushセットアップ","status":"todo","agent":"","files":["src/lib/push/setup.ts","src/lib/push/vapid.ts","scripts/generate-vapid.sh"],"depends_on":["p1-3"]}
+{"id":"p8-2","phase":8,"title":"通知許可フロー","status":"todo","agent":"ui-component","files":["src/components/NotificationPrompt.tsx"],"depends_on":["p8-1"]}
+{"id":"p8-3","phase":8,"title":"好条件検知+送信バッチ","status":"todo","agent":"","files":["src/lib/batch/notify.ts","src/lib/batch/__tests__/notify.test.ts"],"depends_on":["p8-1","p3-4"]}
+{"id":"p9-1","phase":9,"title":"設定画面","status":"todo","agent":"ui-component","files":["src/app/settings/page.tsx","src/components/SettingsForm.tsx"],"depends_on":["p1-4"]}
+{"id":"p9-2","phase":9,"title":"PWAオフラインキャッシュ","status":"todo","agent":"","files":["src/app/sw.ts"],"depends_on":["p1-3","p4-4"]}
+{"id":"p9-3","phase":9,"title":"レスポンシブ調整","status":"todo","agent":"","files":[],"depends_on":["p5-6","p7-3"]}
+{"id":"p9-4","phase":9,"title":"E2Eテスト","status":"todo","agent":"","files":["tests/e2e/home.test.ts","tests/e2e/detail.test.ts","tests/e2e/search.test.ts"],"depends_on":["p9-3"]}

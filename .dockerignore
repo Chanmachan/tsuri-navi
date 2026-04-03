@@ -1,0 +1,15 @@
+.git
+.gitignore
+.dockerignore
+.next
+node_modules
+data
+*.md
+.env*
+.claude
+docs
+idea
+research
+tasks
+scripts
+tests

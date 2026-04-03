@@ -1,0 +1,24 @@
+{
+  "name": "釣りナビ - 海釣り条件ナビゲーター",
+  "short_name": "釣りナビ",
+  "description": "天気・潮汐・波・風などの海況データを総合判断し、いつ・どこで・何を狙うかを結論ファーストで提示する海釣りナビアプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#0369a1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
