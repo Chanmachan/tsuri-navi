@@ -1,0 +1,32 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - db_data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/tsuri-navi.db
+    restart: unless-stopped
+    depends_on:
+      - osrm
+
+  osrm:
+    image: ghcr.io/project-osrm/osrm-backend:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - osrm_data:/data
+    command: >
+      osrm-routed
+      --algorithm mld
+      --max-table-size 10000
+      /data/japan-latest.osrm
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  osrm_data:
