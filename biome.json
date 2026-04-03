@@ -1,0 +1,26 @@
+{                                                   
+    "$schema":                                   
+    "https://biomejs.dev/schemas/2.0.0/schema.json",    
+    "organizeImports": {                              
+        "enabled": true                    
+    },                                                
+    "linter": {                                     
+        "enabled": false                   
+    },                   
+    "formatter": {                               
+        "enabled": true,                   
+        "indentStyle": "tab",                
+        "indentWidth": 2,
+        "lineWidth": 100                                
+    },
+    "javascript": {                                   
+        "formatter": {                                
+            "quoteStyle": "double",          
+            "trailingCommas": "all"          
+        }                                          
+    },
+    "files": {                                        
+        "ignore": ["node_modules", ".next",
+        "public/workbox-*.js", "public/sw.js"]              
+    }                                               
+}                                      

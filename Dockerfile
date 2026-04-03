@@ -10,6 +10,13 @@ FROM base AS deps
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# development stage
+FROM base AS development
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
+
 # builder stage
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules

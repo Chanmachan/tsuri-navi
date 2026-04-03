@@ -45,8 +45,10 @@ node_modules/
 .next/
 out/
 
-# SQLite data
+# SQLite data (runtime DB files)
 data/
+# Allow static data files in src/data/
+!src/data/
 
 # PWA generated files
 public/sw.js

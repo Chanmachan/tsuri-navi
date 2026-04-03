@@ -3,21 +3,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
+      - .:/app
+      - /app/node_modules
       - db_data:/app/data
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DB_PATH=/app/data/tsuri-navi.db
     restart: unless-stopped
-    depends_on:
-      - osrm
 
   osrm:
     image: ghcr.io/project-osrm/osrm-backend:latest
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - osrm_data:/data
     command: >
