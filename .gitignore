@@ -40,3 +40,21 @@ settings.local.json
 
 # Node.js
 node_modules/
+
+# Next.js
+.next/
+out/
+
+# SQLite data
+data/
+
+# PWA generated files
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/sw.js.map
+public/workbox-*.js.map
+
+# TypeScript incremental build
+*.tsbuildinfo
+next-env.d.ts
