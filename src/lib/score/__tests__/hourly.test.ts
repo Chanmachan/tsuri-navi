@@ -95,15 +95,16 @@ describe("calculateHourlyScores", () => {
 	});
 
 	it("uses tide extreme row for hoursToNearestExtreme calculation", () => {
-		// Row at hour 6 is a tide extreme (tide_type set); hour 9 should be 3h away
+		// Row at hour 6 is the tide extreme (h=0 → 潮止まり → tideMovement=0);
+		// hour 7 is 1h away (h=1 → 前後1時間 = best window).
 		const rows = [
 			makeRow(6, { tide_type: "満潮" }),
-			makeRow(9),
+			makeRow(7),
 		];
 		const result = calculateHourlyScores(rows, "大潮");
 		expect(result).toHaveLength(2);
-		// The extreme hour itself (0h away) should score highest on tideMovement
-		expect(result[0].breakdown.tideMovement).toBeGreaterThanOrEqual(result[1].breakdown.tideMovement);
+		// h=0 (exact extreme = 潮止まり) scores lower than h=1 (前後1時間)
+		expect(result[1].breakdown.tideMovement).toBeGreaterThan(result[0].breakdown.tideMovement);
 	});
 
 	it("accepts custom weights without throwing", () => {

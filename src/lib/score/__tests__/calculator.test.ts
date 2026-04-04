@@ -21,12 +21,12 @@ describe("scoreTideCycle", () => {
 });
 
 describe("scoreTideMovement", () => {
-	it("returns 1.0 within 1 hour of extreme", () => {
-		expect(scoreTideMovement(0)).toBe(1.0);
-		expect(scoreTideMovement(1)).toBe(1.0);
+	it("returns 0 at exact extreme (潮止まり = slack water)", () => {
+		expect(scoreTideMovement(0)).toBe(0.0);
 	});
-	it("returns high value within 2 hours", () => {
-		expect(scoreTideMovement(2)).toBeGreaterThan(0.5);
+	it("returns 1.0 for 1-2 hours from extreme (前後1-2時間 = best window)", () => {
+		expect(scoreTideMovement(1)).toBe(1.0);
+		expect(scoreTideMovement(2)).toBe(1.0);
 	});
 	it("returns 0 at 5+ hours (slack water)", () => {
 		expect(scoreTideMovement(5)).toBe(0.0);

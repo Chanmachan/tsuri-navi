@@ -48,11 +48,11 @@ export function scoreTideCycle(tideType: string): number {
  */
 export function scoreTideMovement(hoursToNearestExtreme: number): number {
 	const h = Math.abs(hoursToNearestExtreme);
-	if (h <= 1) return 1.0; // within 1 h of extreme
-	if (h <= 2) return 0.8;
+	if (h === 0) return 0.0; // 潮止まり — exact extreme = slack water (worst)
+	if (h <= 2) return 1.0; // 前後1-2時間 — best window per spec
 	if (h <= 3) return 0.5;
 	if (h <= 4) return 0.25;
-	return 0.0; // near slack water
+	return 0.0; // slack water
 }
 
 /**

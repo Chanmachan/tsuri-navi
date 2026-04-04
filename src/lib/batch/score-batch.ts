@@ -46,7 +46,13 @@ function saveDailySummaries(
 	);
 	const insertStmt = db.prepare(`
     INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
-    VALUES (@spot_id, @date, NULL, @score, @breakdown, 1, datetime('now'))
+    VALUES (@spot_id, @date, NULL, @score, @breakdown, 0, datetime('now'))
+  `);
+	// Mark the winning hourly row so callers can find the best hour without
+	// a correlated MAX subquery (also aligns with the schema's intent for the flag).
+	const markBestStmt = db.prepare(`
+    UPDATE scores SET best_time_flag = 1
+    WHERE spot_id = @spot_id AND date = @date AND hour = @hour
   `);
 	const run = db.transaction(() => {
 		for (const s of summaries) {
@@ -58,6 +64,7 @@ function saveDailySummaries(
 			};
 			deleteStmt.run({ spot_id: params.spot_id, date: params.date });
 			insertStmt.run(params);
+			markBestStmt.run({ spot_id: spotId, date: s.date, hour: s.bestHour });
 		}
 	});
 	run();
@@ -94,7 +101,12 @@ export function runScoreBatchForSpot(
 			errors.push(`No cached data for spot ${spot.id} on ${date}`);
 			continue;
 		}
-		const tideType = tideTypeByDate.get(date) ?? "中潮";
+		// Fall back to "" (hits the neutral default branch in scoreTideCycle → 0.5)
+		// rather than "中潮" (0.75) which would silently inflate scores.
+		if (!tideTypeByDate.has(date)) {
+			errors.push(`No tide type for spot ${spot.id} on ${date}`);
+		}
+		const tideType = tideTypeByDate.get(date) ?? "";
 		const hourly = calculateHourlyScores(rows, tideType, weights);
 		allHourly.push(...hourly);
 	}
