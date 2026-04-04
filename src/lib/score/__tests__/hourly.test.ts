@@ -64,26 +64,28 @@ describe("calculateHourlyScores", () => {
 
 	it("defaults hoursToNearestExtreme to 6 when no tide extreme in rows", () => {
 		// No row has tide_type set, so hoursToExtreme map is empty → default 6
+		// scoreTideMovement(6) = 0.0 → breakdown.tideMovement = Math.round(0.0 * 15) = 0
 		const rows = [makeRow(6)];
 		const [score] = calculateHourlyScores(rows, "大潮");
-		// score should be defined and within valid range
-		expect(score.score).toBeGreaterThanOrEqual(0);
-		expect(score.score).toBeLessThanOrEqual(100);
+		expect(score.breakdown.tideMovement).toBe(0);
 	});
 
-	it("computes pressurePrev3h from 3 hours prior", () => {
-		// Row at hour 6 should get pressurePrev3h from hour 3
+	it("computes pressurePrev3h using index-based 3-row lookback", () => {
+		// Index-based: row at index i gets sorted[i-3].pressure; need ≥4 rows.
+		// Hour 6 (index 3) looks back to hour 3 (index 0): delta = 1010-1015 = -5 → lower pressure score.
+		// Hour 3 (index 0) has no prior row → pressurePrev3h = null → stable/high-pressure default.
 		const rows = [
 			makeRow(3, { pressure: 1015 }),
-			makeRow(6, { pressure: 1010 }), // delta = -5 → dropping pressure → lower score
+			makeRow(4, { pressure: 1015 }),
+			makeRow(5, { pressure: 1015 }),
+			makeRow(6, { pressure: 1010 }), // falling 5 hPa vs 3 rows prior
 		];
-		// No throw, and score is valid
 		const result = calculateHourlyScores(rows, "大潮");
-		expect(result).toHaveLength(2);
-		for (const s of result) {
-			expect(s.score).toBeGreaterThanOrEqual(0);
-			expect(s.score).toBeLessThanOrEqual(100);
-		}
+		expect(result).toHaveLength(4);
+		const hour3 = result.find((r) => r.hour === 3)!;
+		const hour6 = result.find((r) => r.hour === 6)!;
+		// Falling pressure at hour 6 should score lower than stable at hour 3
+		expect(hour6.breakdown.pressure).toBeLessThan(hour3.breakdown.pressure);
 	});
 
 	it("scores mazume hour (sunrise±1) higher than non-mazume hour under same conditions", () => {
