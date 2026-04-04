@@ -172,21 +172,38 @@ export function scoreMoon(moonAge: number): number {
  * Calculate hourly fishing score.
  * Returns an integer 0-100 and a full breakdown.
  */
+/** Clamp a single weight to a finite, non-negative value. Falls back to the default. */
+function sanitizeWeight(w: number, fallback: number): number {
+	return Number.isFinite(w) && w >= 0 ? w : Math.max(0, fallback);
+}
+
 export function calculateHourlyScore(
 	input: HourlyScoreInput,
 	weights: ScoreWeights = DEFAULT_WEIGHTS,
 	date: string,
 	hour: number,
 ): HourlyScore {
+	// Sanitize weights to prevent NaN/Infinity/negative values from poisoning scores.
+	const w: ScoreWeights = {
+		tideCycle: sanitizeWeight(weights.tideCycle, DEFAULT_WEIGHTS.tideCycle),
+		tideMovement: sanitizeWeight(weights.tideMovement, DEFAULT_WEIGHTS.tideMovement),
+		weather: sanitizeWeight(weights.weather, DEFAULT_WEIGHTS.weather),
+		wind: sanitizeWeight(weights.wind, DEFAULT_WEIGHTS.wind),
+		wave: sanitizeWeight(weights.wave, DEFAULT_WEIGHTS.wave),
+		mazume: sanitizeWeight(weights.mazume, DEFAULT_WEIGHTS.mazume),
+		pressure: sanitizeWeight(weights.pressure, DEFAULT_WEIGHTS.pressure),
+		moon: sanitizeWeight(weights.moon, DEFAULT_WEIGHTS.moon),
+	};
+
 	const total =
-		weights.tideCycle +
-		weights.tideMovement +
-		weights.weather +
-		weights.wind +
-		weights.wave +
-		weights.mazume +
-		weights.pressure +
-		weights.moon;
+		w.tideCycle +
+		w.tideMovement +
+		w.weather +
+		w.wind +
+		w.wave +
+		w.mazume +
+		w.pressure +
+		w.moon;
 
 	if (total === 0) {
 		return {
@@ -207,20 +224,18 @@ export function calculateHourlyScore(
 	}
 
 	const breakdown: ScoreBreakdown = {
-		tideCycle: Math.round(
-			scoreTideCycle(input.tideType) * weights.tideCycle,
-		),
+		tideCycle: Math.round(scoreTideCycle(input.tideType) * w.tideCycle),
 		tideMovement: Math.round(
-			scoreTideMovement(input.hoursToNearestExtreme) * weights.tideMovement,
+			scoreTideMovement(input.hoursToNearestExtreme) * w.tideMovement,
 		),
-		weather: Math.round(scoreWeather(input.weatherCode) * weights.weather),
-		wind: Math.round(scoreWind(input.windSpeed) * weights.wind),
-		wave: Math.round(scoreWave(input.waveHeight) * weights.wave),
-		mazume: Math.round(scoreMazume(input.mazumeScore) * weights.mazume),
+		weather: Math.round(scoreWeather(input.weatherCode) * w.weather),
+		wind: Math.round(scoreWind(input.windSpeed) * w.wind),
+		wave: Math.round(scoreWave(input.waveHeight) * w.wave),
+		mazume: Math.round(scoreMazume(input.mazumeScore) * w.mazume),
 		pressure: Math.round(
-			scorePressure(input.pressure, input.pressurePrev3h) * weights.pressure,
+			scorePressure(input.pressure, input.pressurePrev3h) * w.pressure,
 		),
-		moon: Math.round(scoreMoon(input.moonAge) * weights.moon),
+		moon: Math.round(scoreMoon(input.moonAge) * w.moon),
 	};
 
 	const raw =

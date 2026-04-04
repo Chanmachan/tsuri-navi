@@ -54,10 +54,12 @@ describe("calculateHourlyScores", () => {
 		}
 	});
 
-	it("uses moon_age from row when present", () => {
-		// moon_age null should fall back to default (15) without throwing
-		const rows = [makeRow(6, { moon_age: null })];
-		expect(() => calculateHourlyScores(rows, "大潮")).not.toThrow();
+	it("falls back to moon_age=15 when moon_age is null", () => {
+		const rowsWithNull = [makeRow(6, { moon_age: null })];
+		const rowsWithDefault = [makeRow(6, { moon_age: 15 })];
+		const [nullScore] = calculateHourlyScores(rowsWithNull, "大潮");
+		const [defaultScore] = calculateHourlyScores(rowsWithDefault, "大潮");
+		expect(nullScore.breakdown.moon).toBe(defaultScore.breakdown.moon);
 	});
 
 	it("defaults hoursToNearestExtreme to 6 when no tide extreme in rows", () => {

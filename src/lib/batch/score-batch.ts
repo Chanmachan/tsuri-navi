@@ -15,11 +15,20 @@ import { calculateHourlyScores } from "../score/hourly";
 
 function saveHourlyScores(scores: HourlyScore[], spotId: number): void {
 	const db = getDb();
+	// Delete existing hourly rows for each date first so a partial cache refresh
+	// doesn't leave stale hours (or stale best_time_flag values) in the DB.
+	const deleteStmt = db.prepare(
+		`DELETE FROM scores WHERE spot_id = @spot_id AND date = @date AND hour IS NOT NULL`,
+	);
 	const stmt = db.prepare(`
-    INSERT OR REPLACE INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
+    INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
     VALUES (@spot_id, @date, @hour, @score, @breakdown, 0, datetime('now'))
   `);
+	const dates = [...new Set(scores.map((s) => s.date))];
 	const run = db.transaction(() => {
+		for (const date of dates) {
+			deleteStmt.run({ spot_id: spotId, date });
+		}
 		for (const s of scores) {
 			stmt.run({
 				spot_id: spotId,
