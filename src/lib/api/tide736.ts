@@ -113,12 +113,14 @@ function splitPortId(portId: string): { pc: string; hc: string } {
 
 function buildPostBody(portId: string, date: Date): URLSearchParams {
 	const { pc, hc } = splitPortId(portId);
+	// Use UTC getters so that new Date("YYYY-MM-DD") (parsed as UTC midnight)
+	// always yields the same calendar date regardless of server timezone.
 	const params = new URLSearchParams({
 		pc,
 		hc,
-		yr: String(date.getFullYear()),
-		mn: String(date.getMonth() + 1),
-		dy: String(date.getDate()),
+		yr: String(date.getUTCFullYear()),
+		mn: String(date.getUTCMonth() + 1),
+		dy: String(date.getUTCDate()),
 		rg: "day",
 	});
 	return params;
@@ -129,9 +131,9 @@ function buildPostBody(portId: string, date: Date): URLSearchParams {
 // ---------------------------------------------------------------------------
 
 function formatDate(date: Date): string {
-	const y = date.getFullYear();
-	const m = String(date.getMonth() + 1).padStart(2, "0");
-	const d = String(date.getDate()).padStart(2, "0");
+	const y = date.getUTCFullYear();
+	const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const d = String(date.getUTCDate()).padStart(2, "0");
 	return `${y}-${m}-${d}`;
 }
 
