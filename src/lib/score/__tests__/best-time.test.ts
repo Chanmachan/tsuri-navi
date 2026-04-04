@@ -33,6 +33,18 @@ describe("extractBestTime", () => {
 		expect(result?.score).toBe(80);
 	});
 
+	it("deterministic tie-breaker when scores equal (earlier hour wins)", () => {
+		const scores = [
+			makeScore("2026-04-04", 9, 80),
+			makeScore("2026-04-04", 15, 80),
+			makeScore("2026-04-04", 18, 60),
+		];
+		const result = extractBestTime(scores);
+		// Array.sort is stable in V8; equal-score items retain insertion order
+		expect(result?.bestHour).toBe(9);
+		expect(result?.score).toBe(80);
+	});
+
 	it("returns top 3 hours by default", () => {
 		const scores = [
 			makeScore("2026-04-04", 5, 90),

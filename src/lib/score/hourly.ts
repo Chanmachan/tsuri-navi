@@ -16,6 +16,16 @@ import type { CachedHourlyRow } from "../db/cache";
 // ---------------------------------------------------------------------------
 
 /**
+ * Parse the hour from an "HH:MM" time string.
+ * Returns `defaultHour` if the string is missing or unparseable.
+ */
+export function parseHour(timeStr: string | null | undefined, defaultHour: number): number {
+	if (!timeStr) return defaultHour;
+	const h = Number.parseInt(timeStr.split(":")[0] ?? "", 10);
+	return Number.isNaN(h) ? defaultHour : h;
+}
+
+/**
  * Given a list of hourly rows for a single day, compute how many hours each
  * row is from the nearest tide extreme (満潮 or 干潮).
  *
@@ -102,8 +112,8 @@ export function calculateHourlyScores(
 function getMazumeScoreForRow(row: CachedHourlyRow): number {
 	if (!row.sunrise || !row.sunset) return 0;
 
-	const sunriseH = Number.parseInt(row.sunrise.split(":")[0] ?? "5", 10);
-	const sunsetH = Number.parseInt(row.sunset.split(":")[0] ?? "18", 10);
+	const sunriseH = parseHour(row.sunrise, 5);
+	const sunsetH = parseHour(row.sunset, 18);
 
 	// Distance from sunrise or sunset in hours
 	const distSunrise = Math.abs(row.hour - sunriseH);

@@ -13,47 +13,37 @@ import { calculateHourlyScores } from "../score/hourly";
 // DB persistence
 // ---------------------------------------------------------------------------
 
-function saveHourlyScores(scores: HourlyScore[], spotId: number): void {
-	const db = getDb();
-	// Delete existing hourly rows for each date first so a partial cache refresh
-	// doesn't leave stale hours (or stale best_time_flag values) in the DB.
-	const deleteStmt = db.prepare(
-		`DELETE FROM scores WHERE spot_id = @spot_id AND date = @date AND hour IS NOT NULL`,
-	);
-	const stmt = db.prepare(`
-    INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
-    VALUES (@spot_id, @date, @hour, @score, @breakdown, 0, datetime('now'))
-  `);
-	const dates = [...new Set(scores.map((s) => s.date))];
-	const run = db.transaction(() => {
-		for (const date of dates) {
-			deleteStmt.run({ spot_id: spotId, date });
-		}
-		for (const s of scores) {
-			stmt.run({
-				spot_id: spotId,
-				date: s.date,
-				hour: s.hour,
-				score: s.score,
-				breakdown: JSON.stringify(s.breakdown),
-			});
-		}
-	});
-	run();
-}
-
-function saveDailySummaries(
+/**
+ * Persist hourly scores and daily summaries for one spot atomically.
+ * Both writes commit or roll back together so readers never see hourly rows
+ * without a matching daily summary (or vice-versa).
+ */
+function saveScoresTransaction(
+	hourly: HourlyScore[],
 	summaries: DailySummaryScore[],
 	spotId: number,
 ): void {
 	const db = getDb();
+
+	// Hourly statements
+	// Delete existing hourly rows for each date first so a partial cache refresh
+	// doesn't leave stale hours (or stale best_time_flag values) in the DB.
+	const deleteHourlyStmt = db.prepare(
+		`DELETE FROM scores WHERE spot_id = @spot_id AND date = @date AND hour IS NOT NULL`,
+	);
+	const insertHourlyStmt = db.prepare(`
+    INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
+    VALUES (@spot_id, @date, @hour, @score, @breakdown, 0, datetime('now'))
+  `);
+
+	// Daily summary statements
 	// SQLite does not treat multiple NULLs as conflicting under UNIQUE, so
 	// INSERT OR REPLACE would accumulate duplicate rows on each re-run.
-	// Use DELETE + INSERT inside a transaction to enforce idempotency.
-	const deleteStmt = db.prepare(
+	// Use DELETE + INSERT to enforce idempotency.
+	const deleteDailyStmt = db.prepare(
 		`DELETE FROM scores WHERE spot_id = @spot_id AND date = @date AND hour IS NULL`,
 	);
-	const insertStmt = db.prepare(`
+	const insertDailyStmt = db.prepare(`
     INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
     VALUES (@spot_id, @date, NULL, @score, @breakdown, 0, datetime('now'))
   `);
@@ -63,16 +53,32 @@ function saveDailySummaries(
     UPDATE scores SET best_time_flag = 1
     WHERE spot_id = @spot_id AND date = @date AND hour = @hour
   `);
+
 	const run = db.transaction(() => {
+		// Write hourly rows
+		const dates = [...new Set(hourly.map((s) => s.date))];
+		for (const date of dates) {
+			deleteHourlyStmt.run({ spot_id: spotId, date });
+		}
+		for (const s of hourly) {
+			insertHourlyStmt.run({
+				spot_id: spotId,
+				date: s.date,
+				hour: s.hour,
+				score: s.score,
+				breakdown: JSON.stringify(s.breakdown),
+			});
+		}
+
+		// Write daily summaries
 		for (const s of summaries) {
-			const params = {
+			deleteDailyStmt.run({ spot_id: spotId, date: s.date });
+			insertDailyStmt.run({
 				spot_id: spotId,
 				date: s.date,
 				score: s.score,
 				breakdown: JSON.stringify(s.breakdown),
-			};
-			deleteStmt.run({ spot_id: params.spot_id, date: params.date });
-			insertStmt.run(params);
+			});
 			markBestStmt.run({ spot_id: spotId, date: s.date, hour: s.bestHour });
 		}
 	});
@@ -122,11 +128,8 @@ export function runScoreBatchForSpot(
 
 	const summaries = calculateDailySummaries(allHourly);
 
-	if (allHourly.length > 0) {
-		saveHourlyScores(allHourly, spot.id);
-	}
-	if (summaries.length > 0) {
-		saveDailySummaries(summaries, spot.id);
+	if (allHourly.length > 0 || summaries.length > 0) {
+		saveScoresTransaction(allHourly, summaries, spot.id);
 	}
 
 	return {
