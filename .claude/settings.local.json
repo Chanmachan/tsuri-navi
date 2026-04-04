@@ -1,32 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git checkout:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
       "Bash(docker compose:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(make test:*)",
-      "Bash(git push:*)",
-      "Bash(gh pr:*)",
-      "Bash(gh api:*)",
-      "Bash(git pull:*)",
+      "Bash(make:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
       "Bash(uv run:*)",
-      "Bash(git stash:*)",
-      "Bash(git rebase:*)",
-      "Bash(git rm:*)",
-      "Bash(git fetch:*)",
-      "Bash(npm test:*)",
-      "Bash(npm run:*)",
-      "Bash(npx vitest:*)",
-      "Bash(echo \"Exit code: $?\")",
-      "Bash(npx tsc:*)",
-      "Bash(cat app/api/spots/[id]/scores/route.ts)",
-      "Bash(find . -name schema* -not -path */node_modules/*)",
-      "Bash(npm install:*)",
-      "Bash(sed -i '' 's/formatter={\\(v: number\\) => \\\\[`\\\\${v}点`, \"\"スコア\"\"\\\\]}/formatter={\\(v: unknown\\) => [`${v}点`, \"\"スコア\"\"]}/g' app/components/HourlyScoreChart.tsx)",
-      "Bash(sed -i '' 's/labelFormatter={\\(h: number\\) => `\\\\${h}:00`}/labelFormatter={\\(h: unknown\\) => `${h}:00`}/g' app/components/HourlyScoreChart.tsx)",
-      "Bash(sed -i '' 's/formatter={\\(v: number\\) => \\\\[`\\\\${v}cm`, \"\"潮位\"\"\\\\]}/formatter={\\(v: unknown\\) => [`${v}cm`, \"\"潮位\"\"]}/g' app/components/TideChart.tsx)",
-      "Bash(sed -i '' 's/labelFormatter={\\(h: number\\) => `\\\\${h}:00`}/labelFormatter={\\(h: unknown\\) => `${h}:00`}/g' app/components/TideChart.tsx)"
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(grep:*)",
+      "Bash(echo:*)",
+      "Bash(for pc:*)",
+      "Bash(do echo:*)",
+      "Bash(/dev/null done:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(node -e \":*)"
     ]
   }
 }
