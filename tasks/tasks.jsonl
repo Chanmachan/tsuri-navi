@@ -4,13 +4,13 @@
 {"id":"p1-4","phase":1,"title":"SQLiteセットアップ","status":"done","agent":"","files":["src/lib/db/index.ts","src/lib/db/schema.sql","src/lib/db/migrate.ts"],"depends_on":["p1-2"]}
 {"id":"p1-5","phase":1,"title":"プリセット釣り場データ投入","status":"done","agent":"","files":["src/lib/db/seed.ts","src/data/preset-spots.json"],"depends_on":["p1-4"]}
 {"id":"p1-6","phase":1,"title":"lint/test基本設定","status":"done","agent":"","files":["vitest.config.ts","biome.json",".eslintrc.js"],"depends_on":["p1-2"]}
-{"id":"p2-1","phase":2,"title":"Open-Meteo Weather APIクライアント","status":"todo","agent":"api-client","files":["src/lib/api/open-meteo-weather.ts","src/lib/api/__tests__/open-meteo-weather.test.ts"],"depends_on":["p1-6"]}
-{"id":"p2-2","phase":2,"title":"Open-Meteo Marine APIクライアント","status":"todo","agent":"api-client","files":["src/lib/api/open-meteo-marine.ts","src/lib/api/__tests__/open-meteo-marine.test.ts"],"depends_on":["p1-6"]}
-{"id":"p2-3","phase":2,"title":"tide736.net APIクライアント","status":"todo","agent":"api-client","files":["src/lib/api/tide736.ts","src/lib/api/__tests__/tide736.test.ts"],"depends_on":["p1-6"]}
-{"id":"p2-4","phase":2,"title":"日の出・日の入り計算","status":"todo","agent":"score-engine","files":["src/lib/utils/sun.ts","src/lib/utils/__tests__/sun.test.ts"],"depends_on":["p1-6"]}
-{"id":"p2-5","phase":2,"title":"月齢計算","status":"todo","agent":"score-engine","files":["src/lib/utils/moon.ts","src/lib/utils/__tests__/moon.test.ts"],"depends_on":["p1-6"]}
-{"id":"p2-6","phase":2,"title":"データ取得バッチ","status":"todo","agent":"","files":["src/lib/batch/collector.ts","src/lib/batch/__tests__/collector.test.ts"],"depends_on":["p2-1","p2-2","p2-3"]}
-{"id":"p2-7","phase":2,"title":"DBキャッシュ保存","status":"todo","agent":"","files":["src/lib/db/cache.ts","src/lib/db/__tests__/cache.test.ts"],"depends_on":["p1-4","p2-6"]}
+{"id":"p2-1","phase":2,"title":"Open-Meteo Weather APIクライアント","status":"done","agent":"api-client","files":["src/lib/api/open-meteo-weather.ts","src/lib/api/__tests__/open-meteo-weather.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-2","phase":2,"title":"Open-Meteo Marine APIクライアント","status":"done","agent":"api-client","files":["src/lib/api/open-meteo-marine.ts","src/lib/api/__tests__/open-meteo-marine.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-3","phase":2,"title":"tide736.net APIクライアント","status":"done","agent":"api-client","files":["src/lib/api/tide736.ts","src/lib/api/__tests__/tide736.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-4","phase":2,"title":"日の出・日の入り計算","status":"done","agent":"score-engine","files":["src/lib/utils/sun.ts","src/lib/utils/__tests__/sun.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-5","phase":2,"title":"月齢計算","status":"done","agent":"score-engine","files":["src/lib/utils/moon.ts","src/lib/utils/__tests__/moon.test.ts"],"depends_on":["p1-6"]}
+{"id":"p2-6","phase":2,"title":"データ取得バッチ","status":"done","agent":"","files":["src/lib/batch/collector.ts","src/lib/batch/__tests__/collector.test.ts"],"depends_on":["p2-1","p2-2","p2-3"]}
+{"id":"p2-7","phase":2,"title":"DBキャッシュ保存","status":"done","agent":"","files":["src/lib/db/cache.ts","src/lib/db/__tests__/cache.test.ts"],"depends_on":["p1-4","p2-6"]}
 {"id":"p3-1","phase":3,"title":"スコア計算ロジック","status":"todo","agent":"score-engine","files":["src/lib/score/calculator.ts","src/lib/score/__tests__/calculator.test.ts","src/types/score.ts"],"depends_on":["p2-4","p2-5"]}
 {"id":"p3-2","phase":3,"title":"時間帯別スコア","status":"todo","agent":"score-engine","files":["src/lib/score/hourly.ts","src/lib/score/__tests__/hourly.test.ts"],"depends_on":["p3-1"]}
 {"id":"p3-3","phase":3,"title":"ベストタイム抽出","status":"todo","agent":"score-engine","files":["src/lib/score/best-time.ts","src/lib/score/__tests__/best-time.test.ts"],"depends_on":["p3-2"]}
