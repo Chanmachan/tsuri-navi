@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateDailySummaries, calculateDailySummary } from "../daily-summary";
+import { averageBreakdown, calculateDailySummaries, calculateDailySummary } from "../daily-summary";
 import { calculateHourlyScore } from "../calculator";
 import { DEFAULT_WEIGHTS, type HourlyScore } from "../../../types/score";
 
@@ -87,6 +87,68 @@ describe("calculateDailySummaries", () => {
 			"2026-04-05",
 			"2026-04-06",
 		]);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// averageBreakdown
+// ---------------------------------------------------------------------------
+
+describe("averageBreakdown", () => {
+	it("returns all-zero breakdown for empty input", () => {
+		expect(averageBreakdown([])).toEqual({
+			tideCycle: 0,
+			tideMovement: 0,
+			weather: 0,
+			wind: 0,
+			wave: 0,
+			mazume: 0,
+			pressure: 0,
+			moon: 0,
+		});
+	});
+
+	it("returns the breakdown unchanged for a single score", () => {
+		const scores: HourlyScore[] = [
+			{ date: "2026-04-04", hour: 6, score: 70, breakdown: { tideCycle: 10, tideMovement: 8, weather: 9, wind: 7, wave: 6, mazume: 5, pressure: 4, moon: 3 } },
+		];
+		expect(averageBreakdown(scores)).toEqual({ tideCycle: 10, tideMovement: 8, weather: 9, wind: 7, wave: 6, mazume: 5, pressure: 4, moon: 3 });
+	});
+
+	it("rounds per-factor averages using Math.round", () => {
+		// Two scores: breakdown values (10, 9) → avg 9.5 → rounds to 10
+		const scores: HourlyScore[] = [
+			{ date: "2026-04-04", hour: 6, score: 70, breakdown: { tideCycle: 10, tideMovement: 10, weather: 10, wind: 10, wave: 10, mazume: 10, pressure: 10, moon: 10 } },
+			{ date: "2026-04-04", hour: 7, score: 60, breakdown: { tideCycle: 9, tideMovement: 9, weather: 9, wind: 9, wave: 9, mazume: 9, pressure: 9, moon: 9 } },
+		];
+		// avg = (10+9)/2 = 9.5 → Math.round → 10
+		expect(averageBreakdown(scores)).toEqual({
+			tideCycle: 10,
+			tideMovement: 10,
+			weather: 10,
+			wind: 10,
+			wave: 10,
+			mazume: 10,
+			pressure: 10,
+			moon: 10,
+		});
+	});
+
+	it("averages each factor independently", () => {
+		const scores: HourlyScore[] = [
+			{ date: "2026-04-04", hour: 6, score: 80, breakdown: { tideCycle: 20, tideMovement: 10, weather: 6, wind: 4, wave: 8, mazume: 0, pressure: 2, moon: 1 } },
+			{ date: "2026-04-04", hour: 7, score: 40, breakdown: { tideCycle: 0, tideMovement: 10, weather: 2, wind: 4, wave: 0, mazume: 10, pressure: 2, moon: 3 } },
+		];
+		expect(averageBreakdown(scores)).toEqual({
+			tideCycle: 10,
+			tideMovement: 10,
+			weather: 4,
+			wind: 4,
+			wave: 4,
+			mazume: 5,
+			pressure: 2,
+			moon: 2,
+		});
 	});
 });
 
