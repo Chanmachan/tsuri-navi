@@ -92,12 +92,13 @@ function addMinutesToHHMM(hhmm: string, deltaMinutes: number): string {
  * @returns SunTimes in JST (UTC+9)
  */
 export function getSunTimes(latitude: number, longitude: number, date: Date): SunTimes {
-	// Use noon UTC of the given date to get the Julian Day for that calendar day
+	// Use noon UTC of the given UTC calendar date to get the Julian Day
+	// without depending on the runtime's local timezone.
 	const noon = new Date(
 		Date.UTC(
-			date.getFullYear(),
-			date.getMonth(),
-			date.getDate(),
+			date.getUTCFullYear(),
+			date.getUTCMonth(),
+			date.getUTCDate(),
 			12,
 			0,
 			0,

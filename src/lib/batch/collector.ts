@@ -58,8 +58,16 @@ export interface SpotLocation {
 // Helpers
 // ---------------------------------------------------------------------------
 
+// JST (UTC+9) date formatter — matches Open-Meteo's Asia/Tokyo timezone keys
+const jstDateFormatter = new Intl.DateTimeFormat("en-CA", {
+	timeZone: "Asia/Tokyo",
+	year: "numeric",
+	month: "2-digit",
+	day: "2-digit",
+});
+
 function toDateString(date: Date): string {
-	return date.toISOString().split("T")[0] as string;
+	return jstDateFormatter.format(date);
 }
 
 function addDays(date: Date, n: number): Date {
@@ -91,6 +99,9 @@ export async function collectSpotData(
 	startDate: Date = new Date(),
 	days = 7,
 ): Promise<CollectedSpotData> {
+	if (!Number.isInteger(days) || days < 1 || days > 7) {
+		throw new RangeError("days must be an integer between 1 and 7");
+	}
 	const errors: string[] = [];
 
 	// ── Fetch weather + marine in parallel ─────────────────────────────────
@@ -199,7 +210,10 @@ export async function collectSpotData(
 
 		// Sun times are per-day
 		const sunTimes = getSunTimes(spot.latitude, spot.longitude, dayDate);
-		const moonAge = getMoonAge(dayDate);
+		// Normalize to noon JST to get a stable per-day moon age regardless of run time
+		const moonAgeDate = new Date(dayDate);
+		moonAgeDate.setUTCHours(3, 0, 0, 0); // 03:00 UTC = 12:00 JST
+		const moonAge = getMoonAge(moonAgeDate);
 
 		for (let hour = 0; hour < 24; hour++) {
 			const timeKey = toTimeKey(dateStr, hour);

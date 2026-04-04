@@ -1,23 +1,16 @@
 /**
  * Moon age (月齢) calculation utilities.
  * Moon age 0 = new moon, ~15 = full moon, range 0–29.5
- *
- * Reference new moon: 2000-01-06 18:14 UTC (Julian Date 2451549.75)
- * Synodic period: 29.53059 days
  */
 
-const REFERENCE_NEW_MOON_MS = Date.UTC(2000, 0, 6, 18, 14, 0); // 2000-01-06T18:14:00Z
-const SYNODIC_PERIOD = 29.53059; // days
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
+import { calcMoonAge } from "../utils";
 
 /**
  * Calculate moon age (月齢) for a given date.
- * Returns a value in the range [0, 29.53059).
+ * Delegates to the shared calcMoonAge() in src/lib/utils.ts.
  */
 export function getMoonAge(date: Date): number {
-	const diffMs = date.getTime() - REFERENCE_NEW_MOON_MS;
-	const diffDays = diffMs / MS_PER_DAY;
-	return ((diffDays % SYNODIC_PERIOD) + SYNODIC_PERIOD) % SYNODIC_PERIOD;
+	return calcMoonAge(date);
 }
 
 /**
