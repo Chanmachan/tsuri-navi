@@ -55,14 +55,16 @@ function buildHoursToExtreme(rows: CachedHourlyRow[]): Map<number, number> {
 }
 
 /**
- * Build a pressure-3h-ago lookup from the sorted hourly rows.
- * If there are fewer than 3 prior rows, uses null.
+ * Build a pressure-3h-ago lookup from the hourly rows.
+ * Uses the row 3 positions earlier by index (not by hour offset) so non-contiguous
+ * hour sequences (e.g. 0, 1, 2, 6, 7, 8) still get a valid prior reading.
+ * Returns null when fewer than 3 prior rows exist.
  */
 function buildPressurePrev3h(rows: CachedHourlyRow[]): Map<number, number | null> {
-	const byHour = new Map(rows.map((r) => [r.hour, r.pressure]));
+	const sorted = [...rows].sort((a, b) => a.hour - b.hour);
 	const result = new Map<number, number | null>();
-	for (const row of rows) {
-		result.set(row.hour, byHour.get(row.hour - 3) ?? null);
+	for (let i = 0; i < sorted.length; i++) {
+		result.set(sorted[i].hour, i >= 3 ? (sorted[i - 3].pressure ?? null) : null);
 	}
 	return result;
 }

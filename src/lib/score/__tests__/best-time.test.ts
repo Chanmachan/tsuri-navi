@@ -40,7 +40,7 @@ describe("extractBestTime", () => {
 			makeScore("2026-04-04", 18, 60),
 		];
 		const result = extractBestTime(scores);
-		// Array.sort is stable in V8; equal-score items retain insertion order
+		// Array.prototype.sort is stable as of ES2019 (ECMAScript spec); equal-score items retain insertion order
 		expect(result?.bestHour).toBe(9);
 		expect(result?.score).toBe(80);
 	});

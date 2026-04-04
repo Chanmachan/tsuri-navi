@@ -93,7 +93,9 @@ describe("calculateHourlyScores", () => {
 			makeRow(11), // non-mazume
 		];
 		const [mazumeScore, normalScore] = calculateHourlyScores(rows, "大潮");
-		expect(mazumeScore.score).toBeGreaterThanOrEqual(normalScore.score);
+		// Mazume factor must be strictly positive and must produce a higher total score
+		expect(mazumeScore.breakdown.mazume).toBeGreaterThan(0);
+		expect(mazumeScore.score).toBeGreaterThan(normalScore.score);
 	});
 
 	it("uses tide extreme row for hoursToNearestExtreme calculation", () => {
@@ -109,9 +111,13 @@ describe("calculateHourlyScores", () => {
 		expect(result[1].breakdown.tideMovement).toBeGreaterThan(result[0].breakdown.tideMovement);
 	});
 
-	it("accepts custom weights without throwing", () => {
+	it("zeroes wind and wave components when their weights are 0", () => {
 		const rows = [makeRow(6)];
 		const customWeights = { ...DEFAULT_WEIGHTS, wind: 0, wave: 0 };
-		expect(() => calculateHourlyScores(rows, "大潮", customWeights)).not.toThrow();
+		const [result] = calculateHourlyScores(rows, "大潮", customWeights);
+		expect(result.breakdown.wind).toBe(0);
+		expect(result.breakdown.wave).toBe(0);
+		// Other factors still contribute
+		expect(result.score).toBeGreaterThan(0);
 	});
 });
