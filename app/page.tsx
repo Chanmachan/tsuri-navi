@@ -1,4 +1,5 @@
 import { getAllSpotsWithTodayScore, getWeeklyScores } from "../src/lib/db/scores";
+import { getTodayJST } from "../src/lib/utils";
 import { BestTimeCard } from "./components/BestTimeCard";
 import { SpotCard } from "./components/SpotCard";
 import { WeeklyCalendar } from "./components/WeeklyCalendar";
@@ -6,7 +7,7 @@ import { WeeklyCalendar } from "./components/WeeklyCalendar";
 export const dynamic = "force-dynamic";
 
 export default function HomePage() {
-	const today = new Date().toISOString().slice(0, 10);
+	const today = getTodayJST();
 	const spots = getAllSpotsWithTodayScore(today);
 
 	// Pick the spot with the highest today score for the highlight section

@@ -28,6 +28,7 @@ export interface SpotWithScore extends Spot {
 
 /**
  * Get the daily summary score (best_time_flag=1, hour=NULL row) for a spot on a date.
+ * Uses a single query with correlated subquery to avoid N+1 for bestHour.
  */
 export function getDailyScore(
 	spotId: number,
@@ -36,34 +37,44 @@ export function getDailyScore(
 	const db = getDb();
 	const row = db
 		.prepare(
-			`SELECT score FROM scores
-       WHERE spot_id = ? AND date = ? AND hour IS NULL AND best_time_flag = 1
+			`SELECT
+        daily.score,
+        (
+          SELECT MIN(h.hour)
+          FROM scores AS h
+          WHERE h.spot_id = daily.spot_id
+            AND h.date = daily.date
+            AND h.hour IS NOT NULL
+            AND h.score = (
+              SELECT MAX(hm.score)
+              FROM scores AS hm
+              WHERE hm.spot_id = daily.spot_id
+                AND hm.date = daily.date
+                AND hm.hour IS NOT NULL
+            )
+        ) AS bestHour
+       FROM scores AS daily
+       WHERE daily.spot_id = ? AND daily.date = ?
+         AND daily.hour IS NULL AND daily.best_time_flag = 1
        LIMIT 1`,
 		)
-		.get(spotId, date) as { score: number } | undefined;
+		.get(spotId, date) as { score: number; bestHour: number | null } | undefined;
 
 	if (!row) return null;
-
-	// Get best hour: the hourly row with the highest score
-	const bestRow = db
-		.prepare(
-			`SELECT hour FROM scores
-       WHERE spot_id = ? AND date = ? AND hour IS NOT NULL
-       ORDER BY score DESC LIMIT 1`,
-		)
-		.get(spotId, date) as { hour: number } | undefined;
 
 	return {
 		spotId,
 		date,
 		score: row.score,
 		label: scoreToLabel(row.score),
-		bestHour: bestRow?.hour ?? null,
+		bestHour: row.bestHour ?? null,
 	};
 }
 
 /**
- * Get daily scores for a spot over a range of dates.
+ * Get daily scores for a spot over a range of dates (exactly `days` calendar days
+ * starting from startDate). Uses a single query with a correlated subquery for
+ * bestHour to avoid N+1.
  */
 export function getWeeklyScores(
 	spotId: number,
@@ -73,44 +84,96 @@ export function getWeeklyScores(
 	const db = getDb();
 	const rows = db
 		.prepare(
-			`SELECT date, score FROM scores
-       WHERE spot_id = ? AND date >= ? AND hour IS NULL AND best_time_flag = 1
-       ORDER BY date
-       LIMIT ?`,
+			`SELECT
+        daily.date,
+        daily.score,
+        (
+          SELECT MIN(h.hour)
+          FROM scores AS h
+          WHERE h.spot_id = daily.spot_id
+            AND h.date = daily.date
+            AND h.hour IS NOT NULL
+            AND h.score = (
+              SELECT MAX(hm.score)
+              FROM scores AS hm
+              WHERE hm.spot_id = daily.spot_id
+                AND hm.date = daily.date
+                AND hm.hour IS NOT NULL
+            )
+        ) AS bestHour
+       FROM scores AS daily
+       WHERE daily.spot_id = ?
+         AND daily.date >= ?
+         AND daily.date < date(?, '+' || ? || ' days')
+         AND daily.hour IS NULL
+         AND daily.best_time_flag = 1
+       ORDER BY daily.date`,
 		)
-		.all(spotId, startDate, days) as { date: string; score: number }[];
+		.all(spotId, startDate, startDate, days) as {
+		date: string;
+		score: number;
+		bestHour: number | null;
+	}[];
 
-	// For each date, also fetch best hour
-	return rows.map((row) => {
-		const bestRow = db
-			.prepare(
-				`SELECT hour FROM scores
-         WHERE spot_id = ? AND date = ? AND hour IS NOT NULL
-         ORDER BY score DESC LIMIT 1`,
-			)
-			.get(spotId, row.date) as { hour: number } | undefined;
-
-		return {
-			spotId,
-			date: row.date,
-			score: row.score,
-			label: scoreToLabel(row.score),
-			bestHour: bestRow?.hour ?? null,
-		};
-	});
+	return rows.map((row) => ({
+		spotId,
+		date: row.date,
+		score: row.score,
+		label: scoreToLabel(row.score),
+		bestHour: row.bestHour ?? null,
+	}));
 }
 
 /**
  * Get all spots from the DB with today's daily summary score.
+ * Uses a LEFT JOIN to fetch all scores in one query instead of N+1.
  */
 export function getAllSpotsWithTodayScore(today: string): SpotWithScore[] {
 	const db = getDb();
-	const spots = db
-		.prepare(`SELECT * FROM spots ORDER BY is_favorite DESC, is_preset DESC, name`)
-		.all() as Spot[];
+	const rows = db
+		.prepare(
+			`SELECT
+        s.*,
+        sc.score AS today_score,
+        (
+          SELECT MIN(h.hour)
+          FROM scores AS h
+          WHERE h.spot_id = s.id
+            AND h.date = ?
+            AND h.hour IS NOT NULL
+            AND h.score = (
+              SELECT MAX(hm.score)
+              FROM scores AS hm
+              WHERE hm.spot_id = s.id
+                AND hm.date = ?
+                AND hm.hour IS NOT NULL
+            )
+        ) AS today_best_hour
+       FROM spots AS s
+       LEFT JOIN scores AS sc
+         ON sc.spot_id = s.id
+         AND sc.date = ?
+         AND sc.hour IS NULL
+         AND sc.best_time_flag = 1
+       ORDER BY s.is_favorite DESC, s.is_preset DESC, s.name`,
+		)
+		.all(today, today, today) as (Spot & {
+		today_score: number | null;
+		today_best_hour: number | null;
+	})[];
 
-	return spots.map((spot) => ({
-		...spot,
-		todayScore: getDailyScore(spot.id, today),
-	}));
+	return rows.map((row) => {
+		const { today_score, today_best_hour, ...spot } = row;
+		const todayScore: SpotDailyScore | null =
+			today_score != null
+				? {
+						spotId: spot.id,
+						date: today,
+						score: today_score,
+						label: scoreToLabel(today_score),
+						bestHour: today_best_hour ?? null,
+					}
+				: null;
+		return { ...spot, todayScore };
+	});
 }

@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import { getWeeklyScores } from "../../../../../src/lib/db/scores";
+import { getTodayJST } from "../../../../../src/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export function GET(
+export async function GET(
 	_req: Request,
-	{ params }: { params: Promise<{ id: string }> },
+	{ params }: { params: { id: string } | Promise<{ id: string }> },
 ) {
-	return params.then(({ id }) => {
-		const spotId = Number(id);
-		if (!Number.isFinite(spotId) || spotId <= 0) {
-			return NextResponse.json({ error: "Invalid spot id" }, { status: 400 });
-		}
+	const { id } = await params;
+	const spotId = Number(id);
+	if (!Number.isInteger(spotId) || spotId <= 0) {
+		return NextResponse.json({ error: "Invalid spot id" }, { status: 400 });
+	}
 
-		const today = new Date().toISOString().slice(0, 10);
-		const scores = getWeeklyScores(spotId, today, 7);
-		return NextResponse.json(scores);
-	});
+	const today = getTodayJST();
+	const scores = getWeeklyScores(spotId, today, 7);
+	return NextResponse.json(scores);
 }
