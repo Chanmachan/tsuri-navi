@@ -13,9 +13,11 @@ interface PresetSpot {
 export function seedPresetSpots(): void {
 	const db = getDb();
 
+	// Use WHERE NOT EXISTS so re-runs are safe even without a UNIQUE constraint on name.
 	const insert = db.prepare(`
-    INSERT OR IGNORE INTO spots (name, latitude, longitude, type, prefecture, is_preset)
-    VALUES (@name, @latitude, @longitude, @type, @prefecture, 1)
+    INSERT INTO spots (name, latitude, longitude, type, prefecture, is_preset)
+    SELECT @name, @latitude, @longitude, @type, @prefecture, 1
+    WHERE NOT EXISTS (SELECT 1 FROM spots WHERE name = @name)
   `);
 
 	const insertMany = db.transaction((spots: PresetSpot[]) => {

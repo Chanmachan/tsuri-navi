@@ -6,7 +6,10 @@
     "lint": "oxlint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "db:seed": "npx tsx src/db/seed.ts"
+    "db:seed": "npx tsx src/db/seed.ts",
+    "batch": "npx tsx scripts/run-batch.ts",
+    "batch:collect": "npx tsx scripts/collect.ts",
+    "batch:score": "npx tsx scripts/score.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
@@ -27,6 +30,7 @@
     "next": "^16.2.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "recharts": "^3.8.1",
     "workbox-webpack-plugin": "^7.4.0"
   }
 }

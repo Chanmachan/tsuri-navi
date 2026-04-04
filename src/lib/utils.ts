@@ -24,6 +24,22 @@ export function formatDate(dateStr: string): string {
 }
 
 /**
+ * Return today's date string (YYYY-MM-DD) in Japan Standard Time (UTC+9).
+ * Use this instead of `new Date().toISOString().slice(0,10)` which returns UTC.
+ */
+// en-CA locale reliably returns "YYYY-MM-DD" regardless of runtime locale.
+const _jstDateFmt = new Intl.DateTimeFormat("en-CA", {
+	timeZone: "Asia/Tokyo",
+	year: "numeric",
+	month: "2-digit",
+	day: "2-digit",
+});
+
+export function getTodayJST(): string {
+	return _jstDateFmt.format(new Date());
+}
+
+/**
  * Calculate moon age (days since new moon) for a given date.
  * Uses a simplified formula.
  */

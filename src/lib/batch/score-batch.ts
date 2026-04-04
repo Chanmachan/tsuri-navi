@@ -45,7 +45,7 @@ function saveScoresTransaction(
 	);
 	const insertDailyStmt = db.prepare(`
     INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
-    VALUES (@spot_id, @date, NULL, @score, @breakdown, 0, datetime('now'))
+    VALUES (@spot_id, @date, NULL, @score, @breakdown, 1, datetime('now'))
   `);
 	// Mark the winning hourly row so callers can find the best hour without
 	// a correlated MAX subquery (also aligns with the schema's intent for the flag).
