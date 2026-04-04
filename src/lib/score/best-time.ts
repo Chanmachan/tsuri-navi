@@ -8,7 +8,7 @@ export interface BestTimeResult {
 	date: string;
 	bestHour: number;
 	score: number;
-	/** All hours with score >= threshold, sorted by score desc */
+	/** Top N hours sorted by score descending (returned regardless of threshold) */
 	topHours: { hour: number; score: number }[];
 }
 
@@ -24,6 +24,7 @@ export function extractBestTime(
 ): BestTimeResult | null {
 	if (hourlyScores.length === 0) return null;
 
+	const limit = Math.max(1, Math.floor(topN));
 	const sorted = [...hourlyScores].sort((a, b) => b.score - a.score);
 	const best = sorted[0];
 
@@ -31,7 +32,7 @@ export function extractBestTime(
 		date: best.date,
 		bestHour: best.hour,
 		score: best.score,
-		topHours: sorted.slice(0, topN).map((h) => ({
+		topHours: sorted.slice(0, limit).map((h) => ({
 			hour: h.hour,
 			score: h.score,
 		})),

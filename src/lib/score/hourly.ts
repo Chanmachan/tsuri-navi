@@ -75,7 +75,6 @@ export function calculateHourlyScores(
 ): HourlyScore[] {
 	if (rows.length === 0) return [];
 
-	const date = rows[0].date;
 	const hoursToExtreme = buildHoursToExtreme(rows);
 	const pressurePrev3h = buildPressurePrev3h(rows);
 
@@ -91,7 +90,7 @@ export function calculateHourlyScores(
 			pressurePrev3h: pressurePrev3h.get(row.hour) ?? null,
 			moonAge: row.moon_age ?? 15,
 		};
-		return calculateHourlyScore(input, weights, date, row.hour);
+		return calculateHourlyScore(input, weights, row.date, row.hour);
 	});
 }
 

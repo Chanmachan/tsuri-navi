@@ -188,6 +188,24 @@ export function calculateHourlyScore(
 		weights.pressure +
 		weights.moon;
 
+	if (total === 0) {
+		return {
+			date,
+			hour,
+			score: 0,
+			breakdown: {
+				tideCycle: 0,
+				tideMovement: 0,
+				weather: 0,
+				wind: 0,
+				wave: 0,
+				mazume: 0,
+				pressure: 0,
+				moon: 0,
+			},
+		};
+	}
+
 	const breakdown: ScoreBreakdown = {
 		tideCycle: Math.round(
 			scoreTideCycle(input.tideType) * weights.tideCycle,

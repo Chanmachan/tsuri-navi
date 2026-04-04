@@ -73,9 +73,9 @@
 - tide736.net APIのレート制限の実測
 
 ## Validation
-- [ ] lint
-- [ ] typecheck
-- [ ] tests
-- [ ] 2026/3/14久ノ浜のケースで×判定
+- [x] lint
+- [x] typecheck
+- [x] tests
+- [x] 2026/3/14久ノ浜のケースで×判定
 - [ ] PWAホーム画面追加で正常動作
 - [ ] プッシュ通知の受信確認
