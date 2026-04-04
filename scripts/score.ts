@@ -20,11 +20,16 @@ function main() {
 	console.log("=== tsuri-navi: score batch (no tide-cycle data) ===");
 
 	const today = getTodayJST();
+	const fmt = new Intl.DateTimeFormat("en-CA", {
+		timeZone: "Asia/Tokyo",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	});
+	const todayMs = new Date(`${today}T00:00:00+09:00`).getTime();
 	const dates: string[] = [];
 	for (let i = 0; i < 7; i++) {
-		const d = new Date(today);
-		d.setDate(d.getDate() + i);
-		dates.push(d.toISOString().slice(0, 10));
+		dates.push(fmt.format(new Date(todayMs + i * 86_400_000)));
 	}
 	console.log(`Scoring dates: ${dates[0]} … ${dates[dates.length - 1]}`);
 

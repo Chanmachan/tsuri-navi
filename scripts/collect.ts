@@ -9,7 +9,7 @@
 import { seedPresetSpots } from "../src/db/seed";
 import { saveCollectedData } from "../src/lib/db/cache";
 import { collectSpotData } from "../src/lib/batch/collector";
-import { getDb } from "../src/db/client";
+import { getDb, closeDb } from "../src/db/client";
 import type { Spot } from "../src/db/schema";
 
 async function main() {
@@ -43,6 +43,7 @@ async function main() {
 	}
 
 	console.log(`\nDone: ${ok} ok, ${fail} failed.`);
+	closeDb();
 	process.exit(fail > 0 ? 1 : 0);
 }
 

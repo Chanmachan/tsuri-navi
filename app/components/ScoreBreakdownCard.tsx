@@ -49,7 +49,7 @@ export function ScoreBreakdownCard({ score, breakdown, bestHour }: Props) {
 			<ul className="space-y-2">
 				{FACTOR_LABELS.map(({ key, label: factorLabel, maxWeight }) => {
 					const val = breakdown[key] ?? 0;
-					const pct = maxWeight > 0 ? val / maxWeight : 0;
+					const pct = Math.min(1, Math.max(0, maxWeight > 0 ? val / maxWeight : 0));
 					return (
 						<li key={key} className="flex items-center gap-2">
 							<span className="text-xs text-gray-500 w-20 shrink-0">{factorLabel}</span>
