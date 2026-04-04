@@ -11,8 +11,9 @@ export default function HomePage() {
 	const spots = getAllSpotsWithTodayScore(today);
 
 	// Pick the spot with the highest today score for the highlight section
+	// Require bestHour != null so the BestTimeCard always has a time to display
 	const bestSpot = spots
-		.filter((s) => s.todayScore != null)
+		.filter((s) => s.todayScore?.bestHour != null)
 		.sort((a, b) => (b.todayScore?.score ?? 0) - (a.todayScore?.score ?? 0))[0];
 
 	const weeklyScores = bestSpot ? getWeeklyScores(bestSpot.id, today, 7) : [];
