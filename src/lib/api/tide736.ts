@@ -1,10 +1,19 @@
 /**
  * tide736.net Tide Prediction API client.
  * Fetches daily tide data for Japanese ports.
- * API endpoint: https://tide736.net/get_tide/
+ * API endpoint: https://api.tide736.net/get_tide.php (POST)
+ *
+ * Parameters:
+ *   pc  - prefecture code (2 digits)
+ *   hc  - harbor code (2 digits)
+ *   yr  - year
+ *   mn  - month (1-12)
+ *   dy  - day (1-31)
+ *   rg  - range: 'day'
  */
 
-const BASE_URL = "https://tide736.net/get_tide/";
+// NOTE: the api subdomain redirects; use the canonical URL instead
+const BASE_URL = "https://tide736.net/api/get_tide.php";
 const MAX_RETRIES = 3;
 const RETRY_DELAYS_MS = [1000, 2000, 4000];
 
@@ -48,19 +57,26 @@ export class TideApiError extends Error {
 
 // ---------------------------------------------------------------------------
 // Port ID map (preset fishing spots)
-// Note: These port IDs are approximate and should be verified against
-// the official tide736.net port list.
+//
+// Encoded as 4-digit string: first 2 = prefecture code (pc),
+// last 2 = harbor code (hc) as returned by api/get_harbor.php.
+//
+// Fukushima (pc=07): 05=四倉, 06=小名浜
+// Miyagi    (pc=04): 06=石巻
+// Kochi     (pc=39): 04=高知
+//
+// Spots without an exact harbor in the API are mapped to the nearest one.
 // ---------------------------------------------------------------------------
 
 const PORT_ID_MAP: Record<string, string> = {
-	久ノ浜漁港: "6723",
-	四倉漁港: "6712",
-	小名浜港: "6701",
-	中之作漁港: "6718",
-	豊間の磯: "6706",
-	江名港: "6704",
-	桃浦漁港: "3501",
-	宇佐漁港: "7401",
+	久ノ浜漁港: "0705", // 四倉 (nearest station)
+	四倉漁港: "0705",
+	小名浜港: "0706",
+	中之作漁港: "0706", // 小名浜 (nearest station)
+	豊間の磯: "0706", // 小名浜 (nearest station)
+	江名港: "0706", // 小名浜 (nearest station)
+	桃浦漁港: "0406", // 石巻 (nearest station)
+	宇佐漁港: "3904", // 高知 (nearest station)
 };
 
 /**
@@ -82,48 +98,35 @@ export function findPortId(spotName: string): string | undefined {
 }
 
 // ---------------------------------------------------------------------------
-// URL builder
+// Request builder
 // ---------------------------------------------------------------------------
 
-function buildUrl(portId: string, date: Date): string {
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, "0");
-	const day = String(date.getDate()).padStart(2, "0");
-	const yyyymm = `${year}${month}`;
-	// Include yyyymmdd in case the API supports day-level filtering.
-	// The API currently returns monthly data; parseResponse selects the target date.
-	const yyyymmdd = `${year}${month}${day}`;
-	const params = new URLSearchParams({ port_id: portId, yyyymm, yyyymmdd });
-	return `${BASE_URL}?${params.toString()}`;
+/**
+ * Split a 4-digit legacy port ID into prefecture code (first 2 digits)
+ * and harbor code (last 2 digits).
+ * e.g. "6723" → { pc: "67", hc: "23" }
+ */
+function splitPortId(portId: string): { pc: string; hc: string } {
+	const padded = portId.padStart(4, "0");
+	return { pc: padded.slice(0, 2), hc: padded.slice(2, 4) };
+}
+
+function buildPostBody(portId: string, date: Date): URLSearchParams {
+	const { pc, hc } = splitPortId(portId);
+	const params = new URLSearchParams({
+		pc,
+		hc,
+		yr: String(date.getFullYear()),
+		mn: String(date.getMonth() + 1),
+		dy: String(date.getDate()),
+		rg: "day",
+	});
+	return params;
 }
 
 // ---------------------------------------------------------------------------
 // Response parser
 // ---------------------------------------------------------------------------
-
-/**
- * Parse the raw text/HTML response from tide736.net.
- *
- * The API returns an HTML page containing tide data. We attempt to extract:
- * - Hourly tide levels embedded in the page (typically in a table or script)
- * - High/low tide extremes
- * - Tide type (潮回り) and moon age (月齢)
- *
- * If the format cannot be recognised a TideApiError is thrown.
- */
-function parseResponse(raw: string, portId: string, date: Date): TideData {
-	// Try JSON first (in case the API evolves to return JSON)
-	try {
-		const json = JSON.parse(raw) as unknown;
-		if (json && typeof json === "object") {
-			return parseJsonResponse(json as Record<string, unknown>, portId, date);
-		}
-	} catch {
-		// Not JSON — fall through to HTML parsing
-	}
-
-	return parseHtmlResponse(raw, portId, date);
-}
 
 function formatDate(date: Date): string {
 	const y = date.getFullYear();
@@ -132,147 +135,73 @@ function formatDate(date: Date): string {
 	return `${y}-${m}-${d}`;
 }
 
-function parseJsonResponse(json: Record<string, unknown>, portId: string, date: Date): TideData {
-	const hourly: TidePoint[] = [];
-	const extremes: TideExtreme[] = [];
-
-	// Attempt to read hourly array
-	if (Array.isArray(json.hourly)) {
-		for (let i = 0; i < Math.min(24, (json.hourly as unknown[]).length); i++) {
-			const entry = (json.hourly as unknown[])[i];
-			if (entry !== null && typeof entry === "object") {
-				const e = entry as Record<string, unknown>;
-				hourly.push({
-					hour: typeof e.hour === "number" ? e.hour : i,
-					level: typeof e.level === "number" ? e.level : 0,
-				});
-			}
-		}
+/**
+ * Parse the JSON response from the new tide736.net API.
+ *
+ * Response shape:
+ *   { status: 1, tide: { chart: { "YYYY-MM-DD": {
+ *     moon:  { title: "中潮", age: "17.1", ... },
+ *     flood: [{ time: "HH:MM", cm: N }, ...],  // 満潮
+ *     edd:   [{ time: "HH:MM", cm: N }, ...],  // 干潮
+ *     tide:  [{ time: "HH:MM", cm: N }, ...]   // every 20 min
+ *   }}}}
+ */
+function parseResponse(raw: string, portId: string, date: Date): TideData {
+	let json: Record<string, unknown>;
+	try {
+		json = JSON.parse(raw) as Record<string, unknown>;
+	} catch {
+		throw new TideApiError(`tide736.net: non-JSON response for port ${portId}`);
 	}
 
-	// Attempt to read extremes array
-	if (Array.isArray(json.extremes)) {
-		for (const entry of json.extremes as unknown[]) {
-			if (entry !== null && typeof entry === "object") {
-				const e = entry as Record<string, unknown>;
-				if (
-					(e.type === "high" || e.type === "low") &&
-					typeof e.time === "string" &&
-					typeof e.level === "number"
-				) {
-					extremes.push({ type: e.type, time: e.time, level: e.level });
+	// status=0 means API-level error
+	if (json.status === 0) {
+		const msg = typeof json.message === "string" ? json.message : "unknown error";
+		throw new TideApiError(`tide736.net API error: ${msg}`);
+	}
+
+	const dateStr = formatDate(date);
+	const tideObj = json.tide as Record<string, unknown> | undefined;
+	const chartObj = tideObj?.chart as Record<string, unknown> | undefined;
+	const dayData = chartObj?.[dateStr] as Record<string, unknown> | undefined;
+
+	if (!dayData) {
+		throw new TideApiError(`tide736.net: no data for ${dateStr} (port ${portId})`);
+	}
+
+	// --- tide type & moon age ---
+	const moon = dayData.moon as Record<string, unknown> | undefined;
+	const tideType = typeof moon?.title === "string" ? moon.title : "中潮";
+	const moonAge = moon?.age !== undefined ? Math.round(parseFloat(String(moon.age))) : 0;
+
+	// --- hourly tide levels (filter for HH:00 entries) ---
+	const hourly: TidePoint[] = [];
+	if (Array.isArray(dayData.tide)) {
+		for (const entry of dayData.tide as unknown[]) {
+			const e = entry as Record<string, unknown>;
+			if (typeof e.time === "string" && e.time.endsWith(":00")) {
+				const hour = Number.parseInt(e.time.split(":")[0] ?? "0", 10);
+				if (hour >= 0 && hour <= 23) {
+					hourly.push({ hour, level: typeof e.cm === "number" ? e.cm : 0 });
 				}
 			}
 		}
 	}
 
-	return {
-		portId,
-		date: formatDate(date),
-		tideType: typeof json.tideType === "string" ? json.tideType : "中潮",
-		moonAge: typeof json.moonAge === "number" ? json.moonAge : 0,
-		hourly,
-		extremes,
-	};
-}
-
-// Tide type keywords used in HTML parsing
-const TIDE_TYPES = ["大潮", "中潮", "小潮", "長潮", "若潮"] as const;
-type TideTypeLiteral = (typeof TIDE_TYPES)[number];
-
-function extractTideType(html: string): string {
-	for (const t of TIDE_TYPES) {
-		if (html.includes(t)) return t;
-	}
-	return "中潮";
-}
-
-function extractMoonAge(html: string): number {
-	// Common patterns: 月齢：14.2  /  月齢: 14  /  月齢14
-	const match = html.match(/月齢[：:\s]*([0-9]+(?:\.[0-9]+)?)/);
-	if (match) {
-		const value = parseFloat(match[1]);
-		if (!isNaN(value)) return Math.round(value);
-	}
-	return 0;
-}
-
-function extractHourlyLevels(html: string): TidePoint[] {
-	const points: TidePoint[] = [];
-
-	// Look for patterns like arrays of numbers that could be hourly levels
-	// Many tide sites embed data as: var tide_data = [100, 105, 110, ...];
-	const arrayMatch = html.match(/(?:tide|choi|潮位)[^=]*=\s*\[([0-9,\s]+)\]/i);
-	if (arrayMatch) {
-		const values = arrayMatch[1].split(",").map((v) => parseInt(v.trim(), 10));
-		for (let i = 0; i < Math.min(24, values.length); i++) {
-			if (!isNaN(values[i])) {
-				points.push({ hour: i, level: values[i] });
+	// --- extremes (flood=満潮, edd=干潮) ---
+	const extremes: TideExtreme[] = [];
+	function extractExtremeEntries(arr: unknown[], type: "high" | "low"): void {
+		for (const entry of arr) {
+			const e = entry as Record<string, unknown>;
+			if (typeof e.time === "string" && typeof e.cm === "number") {
+				extremes.push({ type, time: e.time, level: e.cm });
 			}
 		}
-		if (points.length > 0) return points;
 	}
+	if (Array.isArray(dayData.flood)) extractExtremeEntries(dayData.flood as unknown[], "high");
+	if (Array.isArray(dayData.edd)) extractExtremeEntries(dayData.edd as unknown[], "low");
 
-	// Fallback: look for a sequence of 24 numbers in table cells
-	const cellPattern = /<td[^>]*>\s*([0-9]+)\s*<\/td>/gi;
-	const cellValues: number[] = [];
-	let m: RegExpExecArray | null;
-	while ((m = cellPattern.exec(html)) !== null) {
-		const v = parseInt(m[1], 10);
-		if (!isNaN(v) && v >= 0 && v <= 500) {
-			cellValues.push(v);
-		}
-	}
-	if (cellValues.length >= 24) {
-		for (let i = 0; i < 24; i++) {
-			points.push({ hour: i, level: cellValues[i] });
-		}
-		return points;
-	}
-
-	return points;
-}
-
-function extractExtremes(html: string): TideExtreme[] {
-	const extremes: TideExtreme[] = [];
-
-	// Pattern: 満潮 hh:mm (Ncm) or 干潮 hh:mm (Ncm)
-	const pattern =
-		/(満潮|干潮)\s*(?:時刻[：:\s]*)?\s*([0-9]{1,2}:[0-9]{2})\s*(?:潮位[：:\s]*)?([0-9]+)\s*cm/gi;
-	let m: RegExpExecArray | null;
-	while ((m = pattern.exec(html)) !== null) {
-		extremes.push({
-			type: m[1] === "満潮" ? "high" : "low",
-			time: m[2].padStart(5, "0"),
-			level: parseInt(m[3], 10),
-		});
-	}
-
-	return extremes;
-}
-
-function parseHtmlResponse(html: string, portId: string, date: Date): TideData {
-	const tideType: TideTypeLiteral | string = extractTideType(html);
-	const moonAge = extractMoonAge(html);
-	const hourly = extractHourlyLevels(html);
-	const extremes = extractExtremes(html);
-
-	// If we could not extract meaningful data at all, throw
-	if (hourly.length === 0 && extremes.length === 0) {
-		throw new TideApiError(
-			`tide736.net: could not parse tide data for port ${portId} on ${formatDate(date)}. ` +
-				"The API response format may have changed.",
-		);
-	}
-
-	return {
-		portId,
-		date: formatDate(date),
-		tideType,
-		moonAge,
-		hourly,
-		extremes,
-	};
+	return { portId, date: dateStr, tideType, moonAge, hourly, extremes };
 }
 
 // ---------------------------------------------------------------------------
@@ -294,7 +223,7 @@ async function sleep(ms: number): Promise<void> {
  * responses. Throws a TideApiError on 4xx errors or unparseable responses.
  */
 export async function fetchTideData(portId: string, date: Date): Promise<TideData> {
-	const url = buildUrl(portId, date);
+	const body = buildPostBody(portId, date);
 	let lastError: Error | null = null;
 
 	for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -304,7 +233,11 @@ export async function fetchTideData(portId: string, date: Date): Promise<TideDat
 
 		let response: Response;
 		try {
-			response = await fetch(url);
+			response = await fetch(BASE_URL, {
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: body.toString(),
+			});
 		} catch (err) {
 			lastError = err instanceof Error ? err : new Error("Network request failed");
 			continue;
