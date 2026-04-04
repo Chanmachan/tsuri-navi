@@ -111,20 +111,14 @@ export async function collectSpotData(
 	]);
 
 	if (weatherResult.status === "rejected") {
-		errors.push(
-			`Weather fetch failed: ${(weatherResult.reason as Error).message}`,
-		);
+		errors.push(`Weather fetch failed: ${(weatherResult.reason as Error).message}`);
 	}
 	if (marineResult.status === "rejected") {
-		errors.push(
-			`Marine fetch failed: ${(marineResult.reason as Error).message}`,
-		);
+		errors.push(`Marine fetch failed: ${(marineResult.reason as Error).message}`);
 	}
 
-	const weather =
-		weatherResult.status === "fulfilled" ? weatherResult.value : null;
-	const marine =
-		marineResult.status === "fulfilled" ? marineResult.value : null;
+	const weather = weatherResult.status === "fulfilled" ? weatherResult.value : null;
+	const marine = marineResult.status === "fulfilled" ? marineResult.value : null;
 
 	// Build time-keyed lookup maps
 	const weatherByTime = new Map<
@@ -151,10 +145,7 @@ export async function collectSpotData(
 		}
 	}
 
-	const marineByTime = new Map<
-		string,
-		{ waveHeight: number | null; swellHeight: number | null }
-	>();
+	const marineByTime = new Map<string, { waveHeight: number | null; swellHeight: number | null }>();
 	if (marine) {
 		for (const h of marine.hourly) {
 			marineByTime.set(h.time, {
@@ -191,10 +182,7 @@ export async function collectSpotData(
 			}
 			for (const extreme of data.extremes) {
 				const hour = Number.parseInt(extreme.time.split(":")[0] ?? "0", 10);
-				tidePeakByDateHour.set(
-					`${date}:${hour}`,
-					extreme.type === "high" ? "満潮" : "干潮",
-				);
+				tidePeakByDateHour.set(`${date}:${hour}`, extreme.type === "high" ? "満潮" : "干潮");
 			}
 		}
 	} else {

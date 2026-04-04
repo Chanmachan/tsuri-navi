@@ -121,8 +121,7 @@ export async function fetchWeatherForecast(
 		try {
 			response = await fetch(url);
 		} catch (err) {
-			lastError =
-				err instanceof Error ? err : new Error("Network request failed");
+			lastError = err instanceof Error ? err : new Error("Network request failed");
 			continue;
 		}
 

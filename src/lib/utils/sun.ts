@@ -95,14 +95,7 @@ export function getSunTimes(latitude: number, longitude: number, date: Date): Su
 	// Use noon UTC of the given UTC calendar date to get the Julian Day
 	// without depending on the runtime's local timezone.
 	const noon = new Date(
-		Date.UTC(
-			date.getUTCFullYear(),
-			date.getUTCMonth(),
-			date.getUTCDate(),
-			12,
-			0,
-			0,
-		),
+		Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0),
 	);
 	const JD = toJulianDay(noon);
 
@@ -142,7 +135,9 @@ export function getSunTimes(latitude: number, longitude: number, date: Date): Su
 	const epsilonCorr = epsilon0 + 0.00256 * Math.cos(omega * DEG_TO_RAD);
 
 	// Solar Declination (degrees)
-	const declinationRad = Math.asin(Math.sin(epsilonCorr * DEG_TO_RAD) * Math.sin(lambda * DEG_TO_RAD));
+	const declinationRad = Math.asin(
+		Math.sin(epsilonCorr * DEG_TO_RAD) * Math.sin(lambda * DEG_TO_RAD),
+	);
 
 	// Equation of Time (minutes)
 	const y = Math.tan((epsilonCorr / 2) * DEG_TO_RAD) ** 2;

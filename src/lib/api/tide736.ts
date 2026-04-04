@@ -111,11 +111,7 @@ function buildUrl(portId: string, date: Date): string {
  *
  * If the format cannot be recognised a TideApiError is thrown.
  */
-function parseResponse(
-	raw: string,
-	portId: string,
-	date: Date,
-): TideData {
+function parseResponse(raw: string, portId: string, date: Date): TideData {
 	// Try JSON first (in case the API evolves to return JSON)
 	try {
 		const json = JSON.parse(raw) as unknown;
@@ -136,11 +132,7 @@ function formatDate(date: Date): string {
 	return `${y}-${m}-${d}`;
 }
 
-function parseJsonResponse(
-	json: Record<string, unknown>,
-	portId: string,
-	date: Date,
-): TideData {
+function parseJsonResponse(json: Record<string, unknown>, portId: string, date: Date): TideData {
 	const hourly: TidePoint[] = [];
 	const extremes: TideExtreme[] = [];
 
@@ -210,9 +202,7 @@ function extractHourlyLevels(html: string): TidePoint[] {
 
 	// Look for patterns like arrays of numbers that could be hourly levels
 	// Many tide sites embed data as: var tide_data = [100, 105, 110, ...];
-	const arrayMatch = html.match(
-		/(?:tide|choi|潮位)[^=]*=\s*\[([0-9,\s]+)\]/i,
-	);
+	const arrayMatch = html.match(/(?:tide|choi|潮位)[^=]*=\s*\[([0-9,\s]+)\]/i);
 	if (arrayMatch) {
 		const values = arrayMatch[1].split(",").map((v) => parseInt(v.trim(), 10));
 		for (let i = 0; i < Math.min(24, values.length); i++) {
@@ -261,11 +251,7 @@ function extractExtremes(html: string): TideExtreme[] {
 	return extremes;
 }
 
-function parseHtmlResponse(
-	html: string,
-	portId: string,
-	date: Date,
-): TideData {
+function parseHtmlResponse(html: string, portId: string, date: Date): TideData {
 	const tideType: TideTypeLiteral | string = extractTideType(html);
 	const moonAge = extractMoonAge(html);
 	const hourly = extractHourlyLevels(html);
@@ -307,10 +293,7 @@ async function sleep(ms: number): Promise<void> {
  * Retries up to 3 times with exponential backoff on network errors or 5xx
  * responses. Throws a TideApiError on 4xx errors or unparseable responses.
  */
-export async function fetchTideData(
-	portId: string,
-	date: Date,
-): Promise<TideData> {
+export async function fetchTideData(portId: string, date: Date): Promise<TideData> {
 	const url = buildUrl(portId, date);
 	let lastError: Error | null = null;
 
@@ -323,8 +306,7 @@ export async function fetchTideData(
 		try {
 			response = await fetch(url);
 		} catch (err) {
-			lastError =
-				err instanceof Error ? err : new Error("Network request failed");
+			lastError = err instanceof Error ? err : new Error("Network request failed");
 			continue;
 		}
 
