@@ -38,18 +38,26 @@ function saveDailySummaries(
 	spotId: number,
 ): void {
 	const db = getDb();
-	const stmt = db.prepare(`
-    INSERT OR REPLACE INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
+	// SQLite does not treat multiple NULLs as conflicting under UNIQUE, so
+	// INSERT OR REPLACE would accumulate duplicate rows on each re-run.
+	// Use DELETE + INSERT inside a transaction to enforce idempotency.
+	const deleteStmt = db.prepare(
+		`DELETE FROM scores WHERE spot_id = @spot_id AND date = @date AND hour IS NULL`,
+	);
+	const insertStmt = db.prepare(`
+    INSERT INTO scores (spot_id, date, hour, score, score_breakdown, best_time_flag, calculated_at)
     VALUES (@spot_id, @date, NULL, @score, @breakdown, 1, datetime('now'))
   `);
 	const run = db.transaction(() => {
 		for (const s of summaries) {
-			stmt.run({
+			const params = {
 				spot_id: spotId,
 				date: s.date,
 				score: s.score,
 				breakdown: JSON.stringify(s.breakdown),
-			});
+			};
+			deleteStmt.run({ spot_id: params.spot_id, date: params.date });
+			insertStmt.run(params);
 		}
 	});
 	run();

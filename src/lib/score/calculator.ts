@@ -152,7 +152,8 @@ export function scorePressure(
 
 /**
  * 月齢スコア (moon age).
- * getMoonScore returns 1-5; normalise to 0.0-1.0.
+ * Scores moon age directly and returns a ratio 0.0-1.0.
+ * New/full moon score highest; quarter phases score lowest.
  */
 export function scoreMoon(moonAge: number): number {
 	// 新月/満月 → 1.0; 半月 → 0.2

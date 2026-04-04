@@ -33,7 +33,10 @@ function buildHoursToExtreme(rows: CachedHourlyRow[]): Map<number, number> {
 			result.set(row.hour, 6); // unknown — treat as slack water
 		} else {
 			const minDist = Math.min(
-				...extremeHours.map((eh) => Math.abs(row.hour - eh)),
+				...extremeHours.map((eh) => {
+					const dist = Math.abs(row.hour - eh);
+					return Math.min(dist, 24 - dist); // wrap-around at midnight
+				}),
 			);
 			result.set(row.hour, minDist);
 		}

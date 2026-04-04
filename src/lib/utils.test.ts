@@ -1,25 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { calcMoonAge, formatDate, scoreToColor, scoreToLabel } from "./utils";
 
+// Spec thresholds: ◎≥80, ○≥60, △≥40, ×<40
 describe("scoreToLabel", () => {
-	it("returns ◎ for scores >= 75", () => {
-		expect(scoreToLabel(75)).toBe("◎");
+	it("returns ◎ for scores >= 80", () => {
+		expect(scoreToLabel(80)).toBe("◎");
 		expect(scoreToLabel(100)).toBe("◎");
 	});
 
-	it("returns ○ for scores 50–74", () => {
-		expect(scoreToLabel(50)).toBe("○");
-		expect(scoreToLabel(74)).toBe("○");
+	it("returns ○ for scores 60–79", () => {
+		expect(scoreToLabel(60)).toBe("○");
+		expect(scoreToLabel(79)).toBe("○");
 	});
 
-	it("returns △ for scores 25–49", () => {
-		expect(scoreToLabel(25)).toBe("△");
-		expect(scoreToLabel(49)).toBe("△");
+	it("returns △ for scores 40–59", () => {
+		expect(scoreToLabel(40)).toBe("△");
+		expect(scoreToLabel(59)).toBe("△");
 	});
 
-	it("returns × for scores < 25", () => {
+	it("returns × for scores < 40", () => {
 		expect(scoreToLabel(0)).toBe("×");
-		expect(scoreToLabel(24)).toBe("×");
+		expect(scoreToLabel(39)).toBe("×");
 	});
 });
 
@@ -33,7 +34,7 @@ describe("scoreToColor", () => {
 	});
 
 	it("returns yellow for medium-low scores", () => {
-		expect(scoreToColor(30)).toBe("text-yellow-500");
+		expect(scoreToColor(40)).toBe("text-yellow-500");
 	});
 
 	it("returns red for low scores", () => {

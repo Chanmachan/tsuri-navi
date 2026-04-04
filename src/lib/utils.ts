@@ -1,19 +1,12 @@
-/**
- * Score label mapping for fishing condition scores (0–100).
- */
+// Re-export the canonical scoreToLabel from types/score.ts to avoid duplicate
+// implementations. The spec thresholds are ◎≥80, ○≥60, △≥40, ×<40.
+export { scoreToLabel } from "../types/score";
 export type ScoreLabel = "◎" | "○" | "△" | "×";
 
-export function scoreToLabel(score: number): ScoreLabel {
-	if (score >= 75) return "◎";
-	if (score >= 50) return "○";
-	if (score >= 25) return "△";
-	return "×";
-}
-
 export function scoreToColor(score: number): string {
-	if (score >= 75) return "text-green-600";
-	if (score >= 50) return "text-blue-500";
-	if (score >= 25) return "text-yellow-500";
+	if (score >= 80) return "text-green-600";
+	if (score >= 60) return "text-blue-500";
+	if (score >= 40) return "text-yellow-500";
 	return "text-red-500";
 }
 
