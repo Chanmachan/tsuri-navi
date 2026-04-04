@@ -48,26 +48,30 @@ export function updateSpot(
 
 export function deleteSpot(id: number): boolean {
 	const db = getDb();
-	const { changes } = db.prepare("DELETE FROM spots WHERE id = ?").run(id);
+	const { changes } = db.prepare("DELETE FROM spots WHERE id = ? AND is_preset = 0").run(id);
 	return changes > 0;
 }
 
 /**
  * Toggle is_favorite for the given spot.
- * Returns the new is_favorite value (1 = favorited, 0 = unfavorited).
+ * Returns the new is_favorite value (1 = favorited, 0 = unfavorited),
+ * or null if the spot does not exist.
  */
-export function toggleFavorite(id: number): 0 | 1 {
+export function toggleFavorite(id: number): 0 | 1 | null {
 	const db = getDb();
-	db.prepare(
-		`UPDATE spots
-     SET is_favorite = CASE WHEN is_favorite = 1 THEN 0 ELSE 1 END,
-         updated_at = datetime('now')
-     WHERE id = ?`,
-	).run(id);
+	const { changes } = db
+		.prepare(
+			`UPDATE spots
+       SET is_favorite = CASE WHEN is_favorite = 1 THEN 0 ELSE 1 END,
+           updated_at = datetime('now')
+       WHERE id = ?`,
+		)
+		.run(id);
+	if (changes === 0) return null;
 	const row = db.prepare("SELECT is_favorite FROM spots WHERE id = ?").get(id) as
 		| { is_favorite: 0 | 1 }
 		| undefined;
-	return row?.is_favorite ?? 0;
+	return row?.is_favorite ?? null;
 }
 
 export function getAllSpots(): Spot[] {

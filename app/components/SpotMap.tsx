@@ -61,19 +61,22 @@ export function SpotMap({ spots: initialSpots }: Props) {
 		e.preventDefault();
 		if (!pendingLatLng || !form.name.trim() || !form.prefecture.trim()) return;
 		setSubmitting(true);
-		const res = await fetch("/api/spots", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ ...form, ...pendingLatLng }),
-		});
-		if (res.ok) {
-			const newSpot = (await res.json()) as Spot;
-			setSpots((prev) => [...prev, newSpot]);
-			setAdding(false);
-			setPendingLatLng(null);
-			setForm({ name: "", type: "漁港", prefecture: "" });
+		try {
+			const res = await fetch("/api/spots", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ...form, ...pendingLatLng }),
+			});
+			if (res.ok) {
+				const newSpot = (await res.json()) as Spot;
+				setSpots((prev) => [...prev, newSpot]);
+				setAdding(false);
+				setPendingLatLng(null);
+				setForm({ name: "", type: "漁港", prefecture: "" });
+			}
+		} finally {
+			setSubmitting(false);
 		}
-		setSubmitting(false);
 	}
 
 	function cancelAdd() {
@@ -175,6 +178,7 @@ export function SpotMap({ spots: initialSpots }: Props) {
 						</p>
 						<input
 							type="text"
+							aria-label="釣り場名"
 							placeholder="釣り場名 *"
 							value={form.name}
 							onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -183,6 +187,7 @@ export function SpotMap({ spots: initialSpots }: Props) {
 						/>
 						<div className="flex gap-2">
 							<select
+								aria-label="釣り場タイプ"
 								value={form.type}
 								onChange={(e) => setForm({ ...form, type: e.target.value as SpotType })}
 								className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
@@ -195,6 +200,7 @@ export function SpotMap({ spots: initialSpots }: Props) {
 							</select>
 							<input
 								type="text"
+								aria-label="都道府県"
 								placeholder="都道府県 *"
 								value={form.prefecture}
 								onChange={(e) => setForm({ ...form, prefecture: e.target.value })}

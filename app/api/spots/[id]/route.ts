@@ -13,20 +13,30 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 		return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 	}
 
-	const body = (await req.json()) as Record<string, unknown>;
+	let body: unknown;
+	try {
+		body = await req.json();
+	} catch {
+		return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+	}
+	if (!body || typeof body !== "object") {
+		return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+	}
+	const bodyObj = body as Record<string, unknown>;
 
 	// Toggle favorite
-	if (body.action === "toggle_favorite") {
+	if (bodyObj.action === "toggle_favorite") {
 		const newValue = toggleFavorite(spotId);
+		if (newValue === null) return NextResponse.json({ error: "Not found" }, { status: 404 });
 		return NextResponse.json({ is_favorite: newValue });
 	}
 
 	// Update fields
 	const input: Parameters<typeof updateSpot>[1] = {};
-	if (typeof body.name === "string" && body.name.trim()) input.name = body.name.trim();
-	if (VALID_TYPES.includes(body.type as SpotType)) input.type = body.type as SpotType;
-	if (typeof body.prefecture === "string" && body.prefecture.trim())
-		input.prefecture = body.prefecture.trim();
+	if (typeof bodyObj.name === "string" && bodyObj.name.trim()) input.name = bodyObj.name.trim();
+	if (VALID_TYPES.includes(bodyObj.type as SpotType)) input.type = bodyObj.type as SpotType;
+	if (typeof bodyObj.prefecture === "string" && bodyObj.prefecture.trim())
+		input.prefecture = bodyObj.prefecture.trim();
 
 	const spot = updateSpot(spotId, input);
 	if (!spot) return NextResponse.json({ error: "Not found" }, { status: 404 });

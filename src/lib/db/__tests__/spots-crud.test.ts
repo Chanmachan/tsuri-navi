@@ -23,7 +23,7 @@ beforeEach(() => {
       name TEXT NOT NULL,
       latitude REAL NOT NULL,
       longitude REAL NOT NULL,
-      type TEXT NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('漁港', '磯', 'サーフ', '堤防', 'その他')),
       prefecture TEXT NOT NULL,
       is_favorite INTEGER NOT NULL DEFAULT 0,
       is_preset INTEGER NOT NULL DEFAULT 0,
@@ -100,6 +100,17 @@ describe("deleteSpot", () => {
 	it("returns false for non-existent id", () => {
 		expect(deleteSpot(9999)).toBe(false);
 	});
+
+	it("cannot delete a preset spot", () => {
+		db.exec(`
+      INSERT INTO spots (name, latitude, longitude, type, prefecture, is_preset)
+      VALUES ('プリセット漁港', 37.0, 141.0, '漁港', '福島県', 1)
+    `);
+		const preset = db.prepare("SELECT id FROM spots WHERE name = 'プリセット漁港'").get() as {
+			id: number;
+		};
+		expect(deleteSpot(preset.id)).toBe(false);
+	});
 });
 
 // ---------------------------------------------------------------------------
@@ -118,6 +129,10 @@ describe("toggleFavorite", () => {
 		expect(spot.is_favorite).toBe(0);
 		expect(toggleFavorite(spot.id)).toBe(1);
 		expect(toggleFavorite(spot.id)).toBe(0);
+	});
+
+	it("returns null for non-existent spot", () => {
+		expect(toggleFavorite(9999)).toBeNull();
 	});
 });
 
