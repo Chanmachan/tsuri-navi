@@ -10,6 +10,16 @@ private enum CoordinateSource {
     case searchResult
 }
 
+// MARK: - Search result model
+
+private struct SpotCandidate: Identifiable {
+    let id = UUID()
+    let name: String
+    let coordinate: CLLocationCoordinate2D
+    let prefecture: String
+    let subtitle: String
+}
+
 struct TsuriMapView: View {
     @State private var vm: MapViewModel
     @State private var showAddSpotSheet = false
@@ -19,7 +29,7 @@ struct TsuriMapView: View {
 
     // Name search
     @State private var searchQuery = ""
-    @State private var searchResults: [MKMapItem] = []
+    @State private var searchResults: [SpotCandidate] = []
     @State private var isSearching = false
     @State private var coordinateSource: CoordinateSource = .none
     @State private var searchTask: Task<Void, Never>?
@@ -44,7 +54,6 @@ struct TsuriMapView: View {
                         }
                     }
 
-                    // 長押し確定前の仮アノテーション
                     if let coord = vm.pendingCoordinate {
                         Annotation("新しい釣り場", coordinate: coord) {
                             Image(systemName: "mappin.circle.fill")
@@ -151,12 +160,11 @@ struct TsuriMapView: View {
     private var addSpotSheet: some View {
         NavigationStack {
             Form {
-                // 名称検索セクション
                 Section("名称で検索") {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
-                        TextField("例：狐崎、久ノ浜", text: $searchQuery)
+                        TextField("例：狐崎、富岡", text: $searchQuery)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }
@@ -172,17 +180,19 @@ struct TsuriMapView: View {
                                 .foregroundStyle(.secondary)
                         }
                     } else {
-                        ForEach(searchResults, id: \.self) { item in
+                        ForEach(searchResults) { candidate in
                             Button {
-                                applySearchResult(item)
+                                applyCandidate(candidate)
                             } label: {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(item.name ?? "")
+                                    Text(candidate.name)
                                         .font(.subheadline)
                                         .foregroundStyle(.primary)
-                                    Text(searchResultSubtitle(item))
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                    if !candidate.subtitle.isEmpty {
+                                        Text(candidate.subtitle)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             }
                             .buttonStyle(.plain)
@@ -190,7 +200,6 @@ struct TsuriMapView: View {
                     }
                 }
 
-                // 座標ステータスセクション
                 Section("座標") {
                     switch coordinateSource {
                     case .none:
@@ -267,7 +276,7 @@ struct TsuriMapView: View {
         .presentationDetents([.medium, .large])
     }
 
-    // MARK: - Search helpers
+    // MARK: - Search
 
     private func scheduleSearch(query: String) {
         searchTask?.cancel()
@@ -286,47 +295,95 @@ struct TsuriMapView: View {
     private func performSearch(query: String) async {
         isSearching = true
         let suffix = query.contains(newSpotType) ? "" : " \(newSpotType)"
-        let keyword = "\(query)\(suffix) 日本"
+        let keyword = "\(query)\(suffix)"
 
-        // Step 1: MKLocalSearch (POI + address)
-        var items: [MKMapItem] = []
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = keyword
-        request.resultTypes = [.pointOfInterest, .address]
-        if let response = try? await MKLocalSearch(request: request).start() {
-            items = Array(response.mapItems.prefix(6))
+        // Step 1: MKLocalSearch (Apple Maps POI)
+        var candidates = await searchAppleMaps(keyword: "\(keyword) 日本")
+
+        // Step 2: Nominatim フォールバック（小規模漁港は Apple Maps 未収録が多い）
+        if candidates.isEmpty {
+            candidates = await searchNominatim(query: keyword)
         }
 
-        // Step 2: CLGeocoder フォールバック（小規模漁港など POI 未収録のケース）
-        if items.isEmpty {
-            let geocoder = CLGeocoder()
-            if let placemarks = try? await geocoder.geocodeAddressString(keyword) {
-                items = placemarks.prefix(6).compactMap { pm in
-                    guard pm.location != nil else { return nil }
-                    return MKMapItem(placemark: MKPlacemark(placemark: pm))
-                }
-            }
-        }
-
-        searchResults = items
+        searchResults = candidates
         isSearching = false
     }
 
-    private func applySearchResult(_ item: MKMapItem) {
-        newSpotName = item.name ?? ""
-        newSpotPrefecture = item.placemark.administrativeArea ?? ""
-        vm.pendingCoordinate = item.placemark.coordinate
+    private func searchAppleMaps(keyword: String) async -> [SpotCandidate] {
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = keyword
+        request.resultTypes = [.pointOfInterest, .address]
+        guard let response = try? await MKLocalSearch(request: request).start() else { return [] }
+        return response.mapItems.prefix(6).map { item in
+            let parts = [item.placemark.administrativeArea, item.placemark.locality]
+                .compactMap { $0 }
+            return SpotCandidate(
+                name: item.name ?? keyword,
+                coordinate: item.placemark.coordinate,
+                prefecture: item.placemark.administrativeArea ?? "",
+                subtitle: parts.joined(separator: " ")
+            )
+        }
+    }
+
+    private func searchNominatim(query: String) async -> [SpotCandidate] {
+        var components = URLComponents(string: "https://nominatim.openstreetmap.org/search")!
+        components.queryItems = [
+            URLQueryItem(name: "q", value: query),
+            URLQueryItem(name: "format", value: "json"),
+            URLQueryItem(name: "limit", value: "6"),
+            URLQueryItem(name: "countrycodes", value: "jp"),
+            URLQueryItem(name: "addressdetails", value: "1"),
+            URLQueryItem(name: "accept-language", value: "ja"),
+        ]
+        guard let url = components.url else { return [] }
+        var urlRequest = URLRequest(url: url)
+        urlRequest.setValue("TsuriNavi/1.0 (fishing spot app)", forHTTPHeaderField: "User-Agent")
+        guard let (data, _) = try? await URLSession.shared.data(for: urlRequest) else { return [] }
+
+        struct Hit: Decodable {
+            let lat: String
+            let lon: String
+            let displayName: String
+            let address: Addr?
+            enum CodingKeys: String, CodingKey {
+                case lat, lon
+                case displayName = "display_name"
+                case address
+            }
+            struct Addr: Decodable {
+                let name: String?
+                let state: String?
+                let city: String?
+                let town: String?
+                let village: String?
+            }
+        }
+
+        guard let hits = try? JSONDecoder().decode([Hit].self, from: data) else { return [] }
+        return hits.compactMap { hit in
+            guard let lat = Double(hit.lat), let lon = Double(hit.lon) else { return nil }
+            let name = hit.address?.name
+                ?? String(hit.displayName.split(separator: ",").first.map(String.init) ?? hit.displayName)
+            let prefecture = hit.address?.state ?? ""
+            let locality = hit.address?.city ?? hit.address?.town ?? hit.address?.village ?? ""
+            let subtitle = [prefecture, locality].filter { !$0.isEmpty }.joined(separator: " ")
+            return SpotCandidate(
+                name: name,
+                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                prefecture: prefecture,
+                subtitle: subtitle
+            )
+        }
+    }
+
+    private func applyCandidate(_ candidate: SpotCandidate) {
+        newSpotName = candidate.name
+        newSpotPrefecture = candidate.prefecture
+        vm.pendingCoordinate = candidate.coordinate
         vm.error = nil
         coordinateSource = .searchResult
         searchResults = []
         searchQuery = ""
-    }
-
-    private func searchResultSubtitle(_ item: MKMapItem) -> String {
-        let parts = [
-            item.placemark.administrativeArea,
-            item.placemark.locality
-        ].compactMap { $0 }
-        return parts.joined(separator: " ")
     }
 }
