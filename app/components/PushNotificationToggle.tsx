@@ -18,10 +18,14 @@ export function PushNotificationToggle() {
 		if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 		setSupported(true);
 
-		navigator.serviceWorker.ready.then(async (reg) => {
-			const sub = await reg.pushManager.getSubscription();
-			setSubscribed(!!sub);
-		});
+		navigator.serviceWorker.ready
+			.then(async (reg) => {
+				const sub = await reg.pushManager.getSubscription();
+				setSubscribed(!!sub);
+			})
+			.catch(() => {
+				// Subscription check failed; treat as not subscribed
+			});
 	}, []);
 
 	if (!supported) return null;
@@ -33,13 +37,14 @@ export function PushNotificationToggle() {
 			const existing = await reg.pushManager.getSubscription();
 
 			if (existing) {
-				await existing.unsubscribe();
+				// Delete server record first; only unsubscribe browser on success
 				const delRes = await fetch("/api/push/subscribe", {
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ endpoint: existing.endpoint }),
 				});
-				if (delRes.ok || delRes.status === 404) {
+				if (delRes.ok) {
+					await existing.unsubscribe();
 					setSubscribed(false);
 				}
 			} else {
@@ -65,6 +70,9 @@ export function PushNotificationToggle() {
 				});
 				if (postRes.ok) {
 					setSubscribed(true);
+				} else {
+					// Rollback browser subscription to stay in sync with server
+					await sub.unsubscribe();
 				}
 			}
 		} finally {

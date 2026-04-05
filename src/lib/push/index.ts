@@ -30,6 +30,11 @@ export async function sendPushNotification(
 	subscription: PushSubscription,
 	payload: PushPayload,
 ): Promise<void> {
+	if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+		throw new Error(
+			"VAPID keys are not configured. Set NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY.",
+		);
+	}
 	await webpush.sendNotification(
 		{
 			endpoint: subscription.endpoint,
