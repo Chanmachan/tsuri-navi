@@ -70,8 +70,8 @@
 ### Phase 10: iOS アプリ（SwiftUI）
 
 #### バックエンド追加対応
-- [ ] `GET /api/spots/[id]` エンドポイント追加（釣り場情報 + 当日詳細データ一括、`?date=` 対応）
-- [ ] CORS ヘッダー設定（`next.config.ts`、iOS シミュレーター対応）
+- [x] `GET /api/spots/[id]` エンドポイント追加（釣り場情報 + 当日詳細データ一括、`?date=` 対応）
+- [x] CORS ヘッダー設定（`next.config.ts`、iOS シミュレーター対応）
 
 #### iOS プロジェクト基盤
 - [ ] Xcode プロジェクト作成（SwiftUI、iOS 17+、Swift 6）

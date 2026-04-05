@@ -31,6 +31,19 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
 	reactStrictMode: true,
 	turbopack: {},
+	async headers() {
+		return [
+			{
+				// Allow iOS simulator and LAN clients to call all API routes
+				source: "/api/:path*",
+				headers: [
+					{ key: "Access-Control-Allow-Origin", value: "*" },
+					{ key: "Access-Control-Allow-Methods", value: "GET,POST,PATCH,DELETE,OPTIONS" },
+					{ key: "Access-Control-Allow-Headers", value: "Content-Type" },
+				],
+			},
+		];
+	},
 };
 
 export default withPWA(nextConfig);
