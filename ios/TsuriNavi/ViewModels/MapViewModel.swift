@@ -37,6 +37,7 @@ final class MapViewModel {
                 name: name, latitude: coord.latitude, longitude: coord.longitude,
                 type: type, prefecture: prefecture
             )
+            self.error = nil
             pendingCoordinate = nil
             await load()
         } catch {
