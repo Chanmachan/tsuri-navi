@@ -6,15 +6,38 @@ import { deleteSubscription, saveSubscription } from "../../../../src/lib/push/s
 const MAX_ENDPOINT_LEN = 500;
 const MAX_KEY_LEN = 200;
 
+// Simple in-memory sliding-window rate limiter.
+// Allows at most RATE_LIMIT_MAX requests per RATE_LIMIT_WINDOW_MS per IP.
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const rateLimitStore = new Map<string, number[]>();
+
+function getClientIp(req: NextRequest): string {
+	return req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+}
+
+function checkRateLimit(ip: string): boolean {
+	const now = Date.now();
+	const windowStart = now - RATE_LIMIT_WINDOW_MS;
+	const timestamps = (rateLimitStore.get(ip) ?? []).filter((t) => t > windowStart);
+	if (timestamps.length >= RATE_LIMIT_MAX) {
+		rateLimitStore.set(ip, timestamps);
+		return false;
+	}
+	timestamps.push(now);
+	rateLimitStore.set(ip, timestamps);
+	return true;
+}
+
 function isPrivateHostname(hostname: string): boolean {
 	const h = hostname.toLowerCase();
 	return (
 		h === "localhost" ||
 		h === "::1" ||
 		h.endsWith(".local") ||
-		h.startsWith('127.') ||
-		h.startsWith('10.') ||
-		h.startsWith('192.168.') ||
+		h.startsWith("127.") ||
+		h.startsWith("10.") ||
+		h.startsWith("192.168.") ||
 		/^172\.(1[6-9]|2\d|3[01])\./.test(h)
 	);
 }
@@ -39,6 +62,10 @@ async function parseBody(req: NextRequest): Promise<unknown> {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+	if (!checkRateLimit(getClientIp(req))) {
+		return NextResponse.json({ error: "rate limit exceeded" }, { status: 429 });
+	}
+
 	const body = await parseBody(req);
 	const { endpoint, keys } = (body as Record<string, unknown>) ?? {};
 	const p256dh = (keys as Record<string, unknown> | null)?.p256dh;
@@ -69,8 +96,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
+	if (!checkRateLimit(getClientIp(req))) {
+		return NextResponse.json({ error: "rate limit exceeded" }, { status: 429 });
+	}
+
 	const body = await parseBody(req);
-	const { endpoint } = (body as Record<string, unknown>) ?? {};
+	const { endpoint: bodyEndpoint } = (body as Record<string, unknown>) ?? {};
+	const endpoint =
+		typeof bodyEndpoint === "string" ? bodyEndpoint : req.nextUrl.searchParams.get("endpoint");
 	if (typeof endpoint !== "string") {
 		return NextResponse.json({ error: "invalid endpoint" }, { status: 400 });
 	}
