@@ -121,6 +121,14 @@
 - [ ] 釣り場編集・削除（PATCH / DELETE /api/spots/[id]）
 - [x] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
 
+#### 釣り場名称検索追加（MKLocalSearch）
+- [x] ツールバーに「+」ボタンを追加（長押し不要で追加シートを開けるパス）
+- [x] 追加シートに名称検索フィールドを実装
+  - [x] TextField → 400ms debounce → MKLocalSearch で検索
+  - [x] 検索結果リスト表示（名称・市区町村・都道府県）
+  - [x] 結果タップで名前・座標・都道府県を自動入力
+- [x] 座標表示の状態管理（未選択 / 長押し取得済み / 検索選択済み）
+
 ## Blockers
 - tide736.net APIのレート制限の実測
 

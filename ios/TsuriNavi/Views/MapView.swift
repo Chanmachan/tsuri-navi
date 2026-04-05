@@ -1,12 +1,27 @@
 import SwiftUI
 import MapKit
 
+// MARK: - Coordinate Source
+
+private enum CoordinateSource {
+    case none
+    case longPress
+    case searchResult
+}
+
 struct TsuriMapView: View {
     @State private var vm: MapViewModel
     @State private var showAddSpotSheet = false
     @State private var newSpotName = ""
     @State private var newSpotType = "漁港"
     @State private var newSpotPrefecture = ""
+
+    // Name search
+    @State private var searchQuery = ""
+    @State private var searchResults: [MKMapItem] = []
+    @State private var isSearching = false
+    @State private var coordinateSource: CoordinateSource = .none
+    @State private var searchTask: Task<Void, Never>?
 
     private let spotTypes = ["漁港", "磯", "サーフ", "堤防", "その他"]
 
@@ -50,6 +65,7 @@ struct TsuriMapView: View {
                                    let coordinate = proxy.convert(location, from: .local) {
                                     vm.pendingCoordinate = coordinate
                                     vm.error = nil
+                                    coordinateSource = .longPress
                                     showAddSpotSheet = true
                                 }
                             default:
@@ -62,23 +78,35 @@ struct TsuriMapView: View {
                 if vm.isLoading { ProgressView().padding() }
             }
             .overlay(alignment: .bottom) {
-                if vm.pendingCoordinate == nil {
+                if !showAddSpotSheet {
                     longPressHint
                 }
             }
             .navigationTitle("マップ")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { Task { await vm.load() } }) {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        vm.pendingCoordinate = nil
+                        vm.error = nil
+                        coordinateSource = .none
+                        showAddSpotSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
             }
             .sheet(isPresented: $showAddSpotSheet, onDismiss: {
-                // シートを閉じたとき仮ピンをクリア（追加失敗 or キャンセル）
-                if vm.pendingCoordinate != nil {
-                    vm.pendingCoordinate = nil
-                }
+                vm.pendingCoordinate = nil
+                coordinateSource = .none
+                searchQuery = ""
+                searchResults = []
+                isSearching = false
+                searchTask?.cancel()
             }) {
                 addSpotSheet
             }
@@ -89,7 +117,7 @@ struct TsuriMapView: View {
     // MARK: - Long-press hint
 
     private var longPressHint: some View {
-        Label("地図を長押しで釣り場を追加", systemImage: "hand.tap.fill")
+        Label("長押しまたは「+」で釣り場を追加", systemImage: "hand.tap.fill")
             .font(.caption)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 12)
@@ -122,11 +150,65 @@ struct TsuriMapView: View {
     private var addSpotSheet: some View {
         NavigationStack {
             Form {
-                // 取得座標の確認（読み取り専用）
-                if let coord = vm.pendingCoordinate {
-                    Section("取得した座標") {
-                        LabeledContent("緯度", value: String(format: "%.5f", coord.latitude))
-                        LabeledContent("経度", value: String(format: "%.5f", coord.longitude))
+                // 名称検索セクション
+                Section("名称で検索") {
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        TextField("漁港・釣り場名を入力", text: $searchQuery)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+
+                    if isSearching {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text("検索中…")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } else {
+                        ForEach(searchResults, id: \.self) { item in
+                            Button {
+                                applySearchResult(item)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.name ?? "")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.primary)
+                                    Text(searchResultSubtitle(item))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+
+                // 座標ステータスセクション
+                Section("座標") {
+                    switch coordinateSource {
+                    case .none:
+                        Label("未設定（名称検索か地図の長押しで設定）", systemImage: "location.slash")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    case .longPress:
+                        if let coord = vm.pendingCoordinate {
+                            LabeledContent("緯度", value: String(format: "%.5f", coord.latitude))
+                            LabeledContent("経度", value: String(format: "%.5f", coord.longitude))
+                            Label("地図の長押しで取得", systemImage: "hand.tap.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    case .searchResult:
+                        if let coord = vm.pendingCoordinate {
+                            LabeledContent("緯度", value: String(format: "%.5f", coord.latitude))
+                            LabeledContent("経度", value: String(format: "%.5f", coord.longitude))
+                            Label("検索結果から取得", systemImage: "magnifyingglass")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
 
@@ -160,7 +242,6 @@ struct TsuriMapView: View {
                                 type: newSpotType,
                                 prefecture: newSpotPrefecture
                             )
-                            // 追加成功時のみシートを閉じる
                             if vm.error == nil {
                                 showAddSpotSheet = false
                                 newSpotName = ""
@@ -168,10 +249,65 @@ struct TsuriMapView: View {
                             }
                         }
                     }
-                    .disabled(newSpotName.isEmpty || newSpotPrefecture.isEmpty)
+                    .disabled(
+                        newSpotName.isEmpty ||
+                        newSpotPrefecture.isEmpty ||
+                        vm.pendingCoordinate == nil
+                    )
                 }
             }
+            .onChange(of: searchQuery) { _, newValue in
+                scheduleSearch(query: newValue)
+            }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
+    }
+
+    // MARK: - Search helpers
+
+    private func scheduleSearch(query: String) {
+        searchTask?.cancel()
+        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+            searchResults = []
+            isSearching = false
+            return
+        }
+        searchTask = Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled else { return }
+            await performSearch(query: query)
+        }
+    }
+
+    private func performSearch(query: String) async {
+        isSearching = true
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        request.resultTypes = [.pointOfInterest, .address]
+        do {
+            let response = try await MKLocalSearch(request: request).start()
+            searchResults = Array(response.mapItems.prefix(6))
+        } catch {
+            searchResults = []
+        }
+        isSearching = false
+    }
+
+    private func applySearchResult(_ item: MKMapItem) {
+        newSpotName = item.name ?? ""
+        newSpotPrefecture = item.placemark.administrativeArea ?? ""
+        vm.pendingCoordinate = item.placemark.coordinate
+        vm.error = nil
+        coordinateSource = .searchResult
+        searchResults = []
+        searchQuery = ""
+    }
+
+    private func searchResultSubtitle(_ item: MKMapItem) -> String {
+        let parts = [
+            item.placemark.administrativeArea,
+            item.placemark.locality
+        ].compactMap { $0 }
+        return parts.joined(separator: " ")
     }
 }
