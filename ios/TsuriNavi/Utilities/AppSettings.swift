@@ -13,7 +13,7 @@ final class AppSettings {
     }
 
     var serverURL: String {
-        get { defaults.string(forKey: Keys.serverURL) ?? "http://192.168.1.1:3000" }
+        get { defaults.string(forKey: Keys.serverURL) ?? "http://192.168.1.1:3002" }
         set { defaults.set(newValue, forKey: Keys.serverURL) }
     }
 
