@@ -71,7 +71,7 @@ struct SearchResultRow: View {
 
     var body: some View {
         HStack {
-            ScoreBadge(label: result.label, score: result.score)
+            ScoreBadge(label: result.label ?? "?", score: result.score ?? 0)
             VStack(alignment: .leading, spacing: 2) {
                 Text(result.name).font(.headline)
                 Text(String(format: "%.1fkm  %@", result.distanceKm, result.prefecture))
