@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 	const today = getTodayJST();
 	const rawDate = req.nextUrl.searchParams.get("date") ?? today;
-	if (!/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(rawDate) || isNaN(new Date(rawDate).getTime())) {
 		return NextResponse.json({ error: "Invalid date" }, { status: 400 });
 	}
 
