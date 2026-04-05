@@ -10,6 +10,19 @@ const withPWA = withPWAInit({
 	customWorkerSrc: "worker",
 	workboxOptions: {
 		disableDevLogs: true,
+		runtimeCaching: [
+			{
+				// Cache API responses (NetworkFirst: serve fresh data, fall back to cache when offline)
+				urlPattern: /^\/api\/spots(\/|$)/,
+				handler: "NetworkFirst" as const,
+				options: {
+					cacheName: "api-spots",
+					networkTimeoutSeconds: 10,
+					expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+					cacheableResponse: { statuses: [200] },
+				},
+			},
+		],
 	},
 });
 

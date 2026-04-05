@@ -6,6 +6,7 @@
     "lint": "oxlint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test",
     "db:seed": "npx tsx src/db/seed.ts",
     "batch": "npx tsx scripts/run-batch.ts",
     "batch:collect": "npx tsx scripts/collect.ts",
@@ -13,6 +14,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.5.2",
