@@ -74,48 +74,48 @@
 - [x] CORS ヘッダー設定（`next.config.ts`、iOS シミュレーター対応）
 
 #### iOS プロジェクト基盤
-- [ ] Xcode プロジェクト作成（SwiftUI、iOS 17+、Swift 6）
-- [ ] `APIClient.swift` 実装（URLSession + async/await + Codable）
-- [ ] `AppSettings.swift` 実装（UserDefaults: サーバーURL・自宅位置）
-- [ ] `Models/` 定義（Spot, SpotDetail, SearchResult, Settings）
+- [x] Xcode プロジェクト作成（SwiftUI、iOS 17+、Swift 6）
+- [x] `APIClient.swift` 実装（URLSession + async/await + Codable）
+- [x] `AppSettings.swift` 実装（UserDefaults: サーバーURL・自宅位置）
+- [x] `Models/` 定義（Spot, SpotDetail, SearchResult, Settings）
 
 #### ホーム画面
-- [ ] 釣り場一覧（今日のスコア ◎○△×、ベストタイム表示、お気に入り★）
-- [ ] 週間カレンダー横スクロール（7日分のスコア色分け）
-- [ ] タップで釣り場詳細へ遷移
+- [x] 釣り場一覧（今日のスコア ◎○△×、ベストタイム表示、お気に入り★）
+- [x] 週間カレンダー横スクロール（7日分のスコア色分け）
+- [x] タップで釣り場詳細へ遷移
 
 #### 釣り場詳細画面
-- [ ] スコア大表示 + 判定内訳（潮回り・風速・波高・天気・マズメ等）
-- [ ] 時間帯別スコアバー（ベストタイムハイライト）
-- [ ] タイドグラフ（Swift Charts、日の出・日の入りライン付き）
-- [ ] 天気・風・波の時間帯別テーブル
-- [ ] 今の時期に狙える魚種と餌
-- [ ] 日付切り替え（週間カレンダーで日付選択 → データ再取得）
+- [x] スコア大表示 + 判定内訳（潮回り・風速・波高・天気・マズメ等）
+- [x] 時間帯別スコアバー（ベストタイムハイライト）
+- [x] タイドグラフ（Swift Charts、日の出・日の入りライン付き）
+- [x] 天気・風・波の時間帯別テーブル
+- [x] 今の時期に狙える魚種と餌
+- [x] 日付切り替え（週間カレンダーで日付選択 → データ再取得）
 
 #### 検索画面
-- [ ] 日付セレクト（今日〜7日後）
-- [ ] 距離スライダー（10〜500km）
-- [ ] 結果リスト（スコア順）
+- [x] 日付セレクト（今日〜7日後）
+- [x] 距離スライダー（10〜500km）
+- [x] 結果リスト（スコア順）
 - [ ] MapKit マップ（スコア色分けアノテーション）
 
 #### マップ画面
-- [ ] 全登録釣り場の MapKit 表示（スコア色分けアノテーション）
-- [ ] タップで釣り場詳細へ遷移
-- [ ] 長押しで新規釣り場追加
+- [x] 全登録釣り場の MapKit 表示（スコア色分けアノテーション）
+- [x] タップで釣り場詳細へ遷移
+- [x] 長押しで新規釣り場追加
 
 #### 設定画面
-- [ ] サーバーURL 入力・保存（UserDefaults）
-- [ ] 自宅位置（緯度・経度）入力 + 現在地取得ボタン（CoreLocation）
-- [ ] ローカル通知 ON/OFF
+- [x] サーバーURL 入力・保存（UserDefaults）
+- [x] 自宅位置（緯度・経度）入力 + 現在地取得ボタン（CoreLocation）
+- [x] ローカル通知 ON/OFF
 
 #### ローカル通知
-- [ ] UNUserNotificationCenter 権限リクエスト
-- [ ] 起動時に7日分スコアをチェックし ◎（80点以上）の前日18:00 に通知スケジュール
+- [x] UNUserNotificationCenter 権限リクエスト
+- [x] 起動時に7日分スコアをチェックし ◎（80点以上）の前日18:00 に通知スケジュール
 
 #### 釣り場管理
-- [ ] 釣り場追加（POST /api/spots）
+- [x] 釣り場追加（POST /api/spots）
 - [ ] 釣り場編集・削除（PATCH / DELETE /api/spots/[id]）
-- [ ] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
+- [x] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
 
 ## Blockers
 - tide736.net APIのレート制限の実測
