@@ -134,6 +134,9 @@ export function SettingsForm({ initial }: Props) {
 					<span className="text-sm text-gray-600">好条件の通知を受け取る</span>
 					<button
 						type="button"
+						role="switch"
+						aria-checked={notifEnabled}
+						aria-label="好条件の通知を受け取る"
 						onClick={() => setNotifEnabled((v) => !v)}
 						className={`relative w-12 h-6 rounded-full transition-colors ${
 							notifEnabled ? "bg-sky-500" : "bg-gray-300"
