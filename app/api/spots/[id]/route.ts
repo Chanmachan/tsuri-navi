@@ -1,10 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getFishRecommendations } from "../../../../src/data/fish-seasons";
+import { getDailyScore, getWeeklyScores } from "../../../../src/lib/db/scores";
+import { getHourlyScores, getHourlyWeather, getSpotById } from "../../../../src/lib/db/spot-detail";
 import { deleteSpot, toggleFavorite, updateSpot } from "../../../../src/lib/db/spots-crud";
+import { getTodayJST } from "../../../../src/lib/utils";
 import type { SpotType } from "../../../../src/db/schema";
 
 export const dynamic = "force-dynamic";
 
 const VALID_TYPES: SpotType[] = ["漁港", "磯", "サーフ", "堤防", "その他"];
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	const { id } = await params;
+	const spotId = Number(id);
+	if (!Number.isInteger(spotId) || spotId <= 0) {
+		return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+	}
+
+	const spot = getSpotById(spotId);
+	if (!spot) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+	const today = getTodayJST();
+	const rawDate = req.nextUrl.searchParams.get("date") ?? today;
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+		return NextResponse.json({ error: "Invalid date" }, { status: 400 });
+	}
+
+	const month = Number(rawDate.slice(5, 7));
+
+	return NextResponse.json({
+		spot,
+		dailyScore: getDailyScore(spotId, rawDate),
+		hourlyScores: getHourlyScores(spotId, rawDate),
+		weather: getHourlyWeather(spotId, rawDate),
+		weeklyScores: getWeeklyScores(spotId, today, 7),
+		fish: getFishRecommendations(spot.prefecture, month),
+	});
+}
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
