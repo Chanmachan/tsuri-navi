@@ -15,19 +15,5 @@ services:
       - DB_PATH=/app/data/tsuri-navi.db
     restart: unless-stopped
 
-  osrm:
-    image: ghcr.io/project-osrm/osrm-backend:latest
-    ports:
-      - "5001:5000"
-    volumes:
-      - osrm_data:/data
-    command: >
-      osrm-routed
-      --algorithm mld
-      --max-table-size 10000
-      /data/japan-latest.osrm
-    restart: unless-stopped
-
 volumes:
   db_data:
-  osrm_data:

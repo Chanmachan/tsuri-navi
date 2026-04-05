@@ -71,7 +71,7 @@ export function WeatherTable({ weather }: Props) {
 						<th className="py-1 pr-3 text-right font-medium">気温</th>
 						<th className="py-1 pr-3 text-right font-medium">風</th>
 						<th className="py-1 pr-3 text-right font-medium">波</th>
-						<th className="py-1 pr-3 text-right font-medium">気圧</th>
+						<th className="py-1 pr-3 text-right font-medium hidden sm:table-cell">気圧</th>
 						<th className="py-1 text-right font-medium">潮位</th>
 					</tr>
 				</thead>
@@ -98,7 +98,7 @@ export function WeatherTable({ weather }: Props) {
 							<td className="py-1 pr-3 text-right tabular-nums">
 								{r.wave_height != null ? `${r.wave_height.toFixed(1)}m` : "–"}
 							</td>
-							<td className="py-1 pr-3 text-right tabular-nums">
+							<td className="py-1 pr-3 text-right tabular-nums hidden sm:table-cell">
 								{r.pressure != null ? `${Math.round(r.pressure)}hPa` : "–"}
 							</td>
 							<td className="py-1 text-right tabular-nums">
