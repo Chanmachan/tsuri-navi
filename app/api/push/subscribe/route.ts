@@ -6,6 +6,30 @@ import { deleteSubscription, saveSubscription } from "../../../../src/lib/push/s
 const MAX_ENDPOINT_LEN = 500;
 const MAX_KEY_LEN = 200;
 
+function isPrivateHostname(hostname: string): boolean {
+	const h = hostname.toLowerCase();
+	return (
+		h === "localhost" ||
+		h === "::1" ||
+		h.endsWith(".local") ||
+		h.startsWith('127.') ||
+		h.startsWith('10.') ||
+		h.startsWith('192.168.') ||
+		/^172\.(1[6-9]|2\d|3[01])\./.test(h)
+	);
+}
+
+function isValidPushEndpoint(value: string): boolean {
+	try {
+		const url = new URL(value);
+		if (url.protocol !== "https:") return false;
+		if (isPrivateHostname(url.hostname)) return false;
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 async function parseBody(req: NextRequest): Promise<unknown> {
 	try {
 		return await req.json();
@@ -24,6 +48,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 		return NextResponse.json({ error: "invalid subscription" }, { status: 400 });
 	}
 
+	if (!isValidPushEndpoint(endpoint)) {
+		return NextResponse.json({ error: "invalid endpoint URL" }, { status: 400 });
+	}
+
 	if (
 		endpoint.length > MAX_ENDPOINT_LEN ||
 		p256dh.length > MAX_KEY_LEN ||
@@ -32,7 +60,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 		return NextResponse.json({ error: "payload too large" }, { status: 413 });
 	}
 
-	saveSubscription({ endpoint, keys: { p256dh, auth } });
+	try {
+		saveSubscription({ endpoint, keys: { p256dh, auth } });
+	} catch {
+		return NextResponse.json({ error: "failed to save subscription" }, { status: 500 });
+	}
 	return NextResponse.json({ ok: true }, { status: 201 });
 }
 
@@ -42,6 +74,10 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
 	if (typeof endpoint !== "string") {
 		return NextResponse.json({ error: "invalid endpoint" }, { status: 400 });
 	}
-	deleteSubscription(endpoint);
+	try {
+		deleteSubscription(endpoint);
+	} catch {
+		return NextResponse.json({ error: "failed to delete subscription" }, { status: 500 });
+	}
 	return new NextResponse(null, { status: 204 });
 }
