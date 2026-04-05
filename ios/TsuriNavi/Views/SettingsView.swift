@@ -67,15 +67,18 @@ struct SettingsView: View {
         if !serverURLInput.isEmpty {
             settings.serverURL = serverURLInput.trimmingCharacters(in: .whitespaces)
         }
-        if let lat = Double(homeLatInput) { settings.homeLat = lat }
-        if let lng = Double(homeLngInput) { settings.homeLng = lng }
+        settings.homeLat = homeLatInput.isEmpty ? nil : Double(homeLatInput)
+        settings.homeLng = homeLngInput.isEmpty ? nil : Double(homeLngInput)
     }
 
     private func fetchCurrentLocation() {
         isFetchingLocation = true
-        let delegate = LocationDelegate { coord in
+        let delegate = LocationDelegate {
+            coord in
             homeLatInput = String(format: "%.6f", coord.latitude)
             homeLngInput = String(format: "%.6f", coord.longitude)
+            isFetchingLocation = false
+        } onFailure: {
             isFetchingLocation = false
         }
         locationManager.delegate = delegate
@@ -88,11 +91,18 @@ struct SettingsView: View {
 
 private final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     let onLocation: (CLLocationCoordinate2D) -> Void
-    init(onLocation: @escaping (CLLocationCoordinate2D) -> Void) {
+    let onFailure: () -> Void
+
+    init(onLocation: @escaping (CLLocationCoordinate2D) -> Void, onFailure: @escaping () -> Void) {
         self.onLocation = onLocation
+        self.onFailure = onFailure
     }
+
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let loc = locations.first { onLocation(loc.coordinate) }
     }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        onFailure()
+    }
 }

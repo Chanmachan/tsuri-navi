@@ -28,7 +28,7 @@ struct TsuriMapView: View {
                 }
             }
             .mapStyle(.standard)
-            .onTapGesture { _ in } // prevent accidental navigation
+            .onTapGesture { } // prevent accidental navigation
             .overlay(alignment: .topTrailing) {
                 if vm.isLoading { ProgressView().padding() }
             }

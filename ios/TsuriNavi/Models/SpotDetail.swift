@@ -67,7 +67,7 @@ struct HourlyWeather: Codable, Identifiable {
 }
 
 struct FishRecommendation: Codable, Identifiable {
-    var id: String { fish }
+    var id: String { "\(fish)-\(method)-\(bait)" }
     let fish: String
     let method: String
     let bait: String

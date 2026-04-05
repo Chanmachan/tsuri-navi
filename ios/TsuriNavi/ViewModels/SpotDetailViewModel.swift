@@ -18,6 +18,7 @@ final class SpotDetailViewModel {
     func load(spotId: Int) async {
         isLoading = true
         error = nil
+        detail = nil
         do {
             detail = try await api.fetchSpotDetail(id: spotId, date: selectedDate)
         } catch {

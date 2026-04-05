@@ -30,7 +30,11 @@ final class HomeViewModel {
     }
 
     func toggleFavorite(spot: SpotWithScore) async {
-        _ = try? await api.toggleFavorite(id: spot.id)
+        do {
+            _ = try await api.toggleFavorite(id: spot.id)
+        } catch {
+            self.error = error.localizedDescription
+        }
         await load()
     }
 }

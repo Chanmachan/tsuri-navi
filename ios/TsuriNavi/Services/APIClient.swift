@@ -100,7 +100,7 @@ final class APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": "toggle_favorite"])
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["action": "toggle_favorite"])
         let (data, response) = try await URLSession.shared.data(for: request)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw parseHTTPError(data, statusCode: http.statusCode)
@@ -119,7 +119,7 @@ final class APIClient {
             "name": name, "latitude": latitude,
             "longitude": longitude, "type": type, "prefecture": prefecture
         ]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
         let (data, response) = try await URLSession.shared.data(for: request)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw parseHTTPError(data, statusCode: http.statusCode)

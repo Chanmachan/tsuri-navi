@@ -31,19 +31,22 @@ final class SearchViewModel {
     }
 
     var availableDates: [String] {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
         return (0..<8).compactMap {
             Calendar.current.date(byAdding: .day, value: $0, to: Date())
-                .map { formatter.string(from: $0) }
+                .map { Self.jstDateFormatter.string(from: $0) }
         }
     }
 
     private func todayJST() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        return formatter.string(from: Date())
+        Self.jstDateFormatter.string(from: Date())
     }
+
+    private static let jstDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.calendar = Calendar(identifier: .gregorian)
+        f.timeZone = TimeZone(identifier: "Asia/Tokyo")
+        return f
+    }()
 }
