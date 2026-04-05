@@ -13,6 +13,7 @@ import type { Spot } from "../../db/schema";
 export interface HourlyScoreRow {
 	hour: number;
 	score: number;
+	best_time_flag: number;
 	breakdown: ScoreBreakdown;
 }
 
@@ -48,16 +49,22 @@ export function getHourlyScores(spotId: number, date: string): HourlyScoreRow[] 
 	const db = getDb();
 	const rows = db
 		.prepare(
-			`SELECT hour, score, score_breakdown
+			`SELECT hour, score, score_breakdown, best_time_flag
        FROM scores
        WHERE spot_id = ? AND date = ? AND hour IS NOT NULL
        ORDER BY hour`,
 		)
-		.all(spotId, date) as { hour: number; score: number; score_breakdown: string }[];
+		.all(spotId, date) as {
+		hour: number;
+		score: number;
+		score_breakdown: string;
+		best_time_flag: number;
+	}[];
 
 	return rows.map((r) => ({
 		hour: r.hour,
 		score: r.score,
+		best_time_flag: r.best_time_flag,
 		breakdown: JSON.parse(r.score_breakdown) as ScoreBreakdown,
 	}));
 }

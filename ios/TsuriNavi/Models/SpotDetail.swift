@@ -57,12 +57,12 @@ struct HourlyWeather: Codable, Identifiable {
 
     enum CodingKeys: String, CodingKey {
         case hour, temperature, precipitation, pressure, sunrise, sunset
-        case windSpeed = "windSpeed"
-        case windDirection = "windDirection"
-        case waveHeight = "waveHeight"
-        case tideLevel = "tideLevel"
-        case tideType = "tideType"
-        case weatherCode = "weatherCode"
+        case windSpeed    = "wind_speed"
+        case windDirection = "wind_direction"
+        case waveHeight   = "wave_height"
+        case tideLevel    = "tide_level"
+        case tideType     = "tide_type"
+        case weatherCode  = "weather_code"
     }
 }
 
