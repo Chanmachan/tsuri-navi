@@ -1,5 +1,6 @@
 import SwiftUI
 import MapKit
+import CoreLocation
 
 // MARK: - Coordinate Source
 
@@ -284,22 +285,30 @@ struct TsuriMapView: View {
 
     private func performSearch(query: String) async {
         isSearching = true
-        // タイプキーワードを付加して釣り場に特化した検索にする
-        let keyword = query.contains(newSpotType) ? query : "\(query) \(newSpotType)"
+        let suffix = query.contains(newSpotType) ? "" : " \(newSpotType)"
+        let keyword = "\(query)\(suffix) 日本"
+
+        // Step 1: MKLocalSearch (POI + address)
+        var items: [MKMapItem] = []
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = keyword
         request.resultTypes = [.pointOfInterest, .address]
-        // 日本を中心にした検索範囲
-        request.region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 36.0, longitude: 136.0),
-            span: MKCoordinateSpan(latitudeDelta: 20.0, longitudeDelta: 20.0)
-        )
-        do {
-            let response = try await MKLocalSearch(request: request).start()
-            searchResults = Array(response.mapItems.prefix(6))
-        } catch {
-            searchResults = []
+        if let response = try? await MKLocalSearch(request: request).start() {
+            items = Array(response.mapItems.prefix(6))
         }
+
+        // Step 2: CLGeocoder フォールバック（小規模漁港など POI 未収録のケース）
+        if items.isEmpty {
+            let geocoder = CLGeocoder()
+            if let placemarks = try? await geocoder.geocodeAddressString(keyword) {
+                items = placemarks.prefix(6).compactMap { pm in
+                    guard pm.location != nil else { return nil }
+                    return MKMapItem(placemark: MKPlacemark(placemark: pm))
+                }
+            }
+        }
+
+        searchResults = items
         isSearching = false
     }
 
