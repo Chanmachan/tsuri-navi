@@ -155,10 +155,13 @@ struct TsuriMapView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
-                        TextField("漁港・釣り場名を入力", text: $searchQuery)
+                        TextField("例：狐崎、久ノ浜", text: $searchQuery)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }
+                    Text("「\(newSpotType)」を付けて検索します")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
 
                     if isSearching {
                         HStack(spacing: 8) {
@@ -281,9 +284,16 @@ struct TsuriMapView: View {
 
     private func performSearch(query: String) async {
         isSearching = true
+        // タイプキーワードを付加して釣り場に特化した検索にする
+        let keyword = query.contains(newSpotType) ? query : "\(query) \(newSpotType)"
         let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = query
+        request.naturalLanguageQuery = keyword
         request.resultTypes = [.pointOfInterest, .address]
+        // 日本を中心にした検索範囲
+        request.region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 36.0, longitude: 136.0),
+            span: MKCoordinateSpan(latitudeDelta: 20.0, longitudeDelta: 20.0)
+        )
         do {
             let response = try await MKLocalSearch(request: request).start()
             searchResults = Array(response.mapItems.prefix(6))
