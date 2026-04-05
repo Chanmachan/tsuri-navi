@@ -67,6 +67,31 @@
 - [x] レスポンシブ対応の調整
 - [x] E2Eテスト（主要フロー）
 
+### Phase 10: iOS アプリ（SwiftUI）
+
+#### バックエンド追加対応
+- [ ] `GET /api/spots/[id]` エンドポイント追加（釣り場情報 + 当日詳細データ一括）
+- [ ] CORS ヘッダー設定（`next.config.ts`、iOS シミュレーター対応）
+
+#### iOS プロジェクト基盤
+- [ ] Xcode プロジェクト作成（SwiftUI、iOS 17+、Swift 6）
+- [ ] `APIClient.swift` 実装（URLSession + async/await + Codable）
+- [ ] `AppSettings.swift` 実装（UserDefaults: サーバーURL・自宅位置）
+- [ ] `Models/` 定義（Spot, SpotDetail, SearchResult, Settings）
+
+#### 画面実装
+- [ ] ホーム画面（釣り場一覧 + 今日のスコア + 週間カレンダー横スクロール）
+- [ ] 釣り場詳細画面（スコア内訳 + 時間帯スコアバー + タイドグラフ + 天気テーブル + 魚種提案）
+- [ ] 検索画面（距離スライダー + 日付 + 結果リスト + MapKit マップ）
+- [ ] マップ画面（MapKit + スコア色分けアノテーション + 長押し新規追加）
+- [ ] 設定画面（サーバーURL + 自宅位置 + 現在地取得 + 通知ON/OFF）
+
+#### 機能実装
+- [ ] タイドグラフ（Swift Charts、日の出・日の入りライン付き）
+- [ ] ローカル通知（起動時スケジュール、スコア◎の前日18:00に通知）
+- [ ] 釣り場追加・編集・削除（API 経由）
+- [ ] お気に入りトグル（PATCH /api/spots/[id]）
+
 ## Blockers
 - tide736.net APIのレート制限の実測
 
