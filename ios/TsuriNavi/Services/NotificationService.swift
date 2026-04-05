@@ -1,6 +1,7 @@
 import Foundation
 import UserNotifications
 
+@MainActor
 final class NotificationService {
     static let shared = NotificationService()
     private init() {}
@@ -44,7 +45,6 @@ final class NotificationService {
         }
     }
 
-    @MainActor
     func resetAndReschedule(api: APIClient, spots: [SpotWithScore]) async {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
