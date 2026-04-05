@@ -39,6 +39,7 @@ export function SettingsForm({ initial }: Props) {
 	const [weights, setWeights] = useState<ScoreWeights>({ ...initial.score_weights });
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
+	const [saveError, setSaveError] = useState<string | null>(null);
 
 	function setWeight(key: keyof ScoreWeights, value: number) {
 		setWeights((prev) => ({ ...prev, [key]: value }));
@@ -54,24 +55,44 @@ export function SettingsForm({ initial }: Props) {
 		e.preventDefault();
 		setSaving(true);
 		setSaved(false);
+		setSaveError(null);
 
-		const lat = homeLat.trim() === "" ? null : Number(homeLat);
-		const lng = homeLng.trim() === "" ? null : Number(homeLng);
+		const latNum = homeLat.trim() === "" ? null : Number(homeLat);
+		const lngNum = homeLng.trim() === "" ? null : Number(homeLng);
 
-		await fetch("/api/settings", {
-			method: "PUT",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				home_latitude: lat,
-				home_longitude: lng,
-				notification_enabled: notifEnabled,
-				score_weights: weights,
-			}),
-		});
+		if (latNum !== null && (!isFinite(latNum) || latNum < -90 || latNum > 90)) {
+			setSaveError("緯度は -90〜90 の数値で入力してください");
+			setSaving(false);
+			return;
+		}
+		if (lngNum !== null && (!isFinite(lngNum) || lngNum < -180 || lngNum > 180)) {
+			setSaveError("経度は -180〜180 の数値で入力してください");
+			setSaving(false);
+			return;
+		}
 
-		setSaving(false);
-		setSaved(true);
-		setTimeout(() => setSaved(false), 2000);
+		try {
+			const res = await fetch("/api/settings", {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					home_latitude: latNum,
+					home_longitude: lngNum,
+					notification_enabled: notifEnabled,
+					score_weights: weights,
+				}),
+			});
+			if (!res.ok) {
+				setSaveError("保存に失敗しました");
+				return;
+			}
+			setSaved(true);
+			setTimeout(() => setSaved(false), 2000);
+		} catch {
+			setSaveError("ネットワークエラーが発生しました");
+		} finally {
+			setSaving(false);
+		}
 	}
 
 	return (
@@ -172,6 +193,8 @@ export function SettingsForm({ initial }: Props) {
 					</p>
 				)}
 			</section>
+
+			{saveError && <p className="text-xs text-red-500 text-center">{saveError}</p>}
 
 			{/* Save button */}
 			<button

@@ -10,7 +10,12 @@ export function GET() {
 }
 
 export async function PUT(req: NextRequest) {
-	const body = (await req.json()) as Record<string, unknown>;
+	let body: Record<string, unknown>;
+	try {
+		body = (await req.json()) as Record<string, unknown>;
+	} catch {
+		return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+	}
 
 	const input: Parameters<typeof saveSettings>[0] = {};
 
