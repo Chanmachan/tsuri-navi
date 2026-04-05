@@ -1,0 +1,10 @@
+TsuriNavi.xcodeproj/xcuserdata/
+TsuriNavi.xcodeproj/project.xcworkspace/xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.xcarchive
+build/
+.DS_Store

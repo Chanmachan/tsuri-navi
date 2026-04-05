@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start",
     "lint": "oxlint .",
@@ -10,7 +10,8 @@
     "db:seed": "npx tsx src/db/seed.ts",
     "batch": "npx tsx scripts/run-batch.ts",
     "batch:collect": "npx tsx scripts/collect.ts",
-    "batch:score": "npx tsx scripts/score.ts"
+    "batch:score": "npx tsx scripts/score.ts",
+    "ios:build": "bash ios/check-build.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
