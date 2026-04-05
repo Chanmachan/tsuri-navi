@@ -14,6 +14,6 @@ test.describe("設定画面", () => {
 
 	test("プッシュ通知トグルが存在する", async ({ page }) => {
 		await page.goto("/settings");
-		await expect(page.getByRole("switch")).toBeVisible();
+		await expect(page.getByRole("switch", { name: "好条件の通知を受け取る" })).toBeVisible();
 	});
 });

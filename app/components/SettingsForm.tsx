@@ -103,8 +103,11 @@ export function SettingsForm({ initial }: Props) {
 				<p className="text-xs text-gray-400">距離ベース検索に使用します（緯度・経度）</p>
 				<div className="flex gap-2">
 					<div className="flex-1">
-						<label className="text-xs text-gray-500 block mb-1">緯度</label>
+						<label htmlFor="home-lat" className="text-xs text-gray-500 block mb-1">
+							緯度
+						</label>
 						<input
+							id="home-lat"
 							type="number"
 							step="any"
 							placeholder="例: 37.0"
@@ -114,8 +117,11 @@ export function SettingsForm({ initial }: Props) {
 						/>
 					</div>
 					<div className="flex-1">
-						<label className="text-xs text-gray-500 block mb-1">経度</label>
+						<label htmlFor="home-lng" className="text-xs text-gray-500 block mb-1">
+							経度
+						</label>
 						<input
+							id="home-lng"
 							type="number"
 							step="any"
 							placeholder="例: 141.0"
