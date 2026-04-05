@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FishRecommendation } from "../../components/FishRecommendation";
 import { HourlyScoreChart } from "../../components/HourlyScoreChart";
 import { ScoreBreakdownCard } from "../../components/ScoreBreakdownCard";
+import { SpotActions } from "../../components/SpotActions";
 import { TideChart } from "../../components/TideChart";
 import { WeatherTable } from "../../components/WeatherTable";
 import { WeeklyCalendar } from "../../components/WeeklyCalendar";
@@ -54,6 +55,12 @@ export default async function SpotDetailPage({ params }: Props) {
 					</p>
 				</div>
 			</div>
+
+			<SpotActions
+				spotId={spot.id}
+				isFavorite={spot.is_favorite === 1}
+				isPreset={spot.is_preset === 1}
+			/>
 
 			{dailyScore && bestHourlyBreakdown ? (
 				<>
