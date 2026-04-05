@@ -10,7 +10,7 @@
 import { getTodayJST } from "../src/lib/utils";
 import { getDb, closeDb } from "../src/db/client";
 import { sendPushNotification, type PushPayload } from "../src/lib/push/index";
-import { getAllSubscriptions } from "../src/lib/push/subscriptions";
+import { deleteSubscription, getAllSubscriptions } from "../src/lib/push/subscriptions";
 
 interface ScoreRow {
 	spot_id: number;
@@ -85,6 +85,10 @@ async function main() {
 			await sendPushNotification(sub, payload);
 			sent++;
 		} catch (err) {
+			const statusCode = (err as { statusCode?: number }).statusCode;
+			if (statusCode === 404 || statusCode === 410) {
+				deleteSubscription(sub.endpoint);
+			}
 			const preview = `${sub.endpoint.slice(0, 24)}…`;
 			console.warn(`Failed to send to ${preview}: ${String(err)}`);
 			failed++;
