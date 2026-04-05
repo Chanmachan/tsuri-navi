@@ -101,7 +101,11 @@
 #### マップ画面
 - [x] 全登録釣り場の MapKit 表示（スコア色分けアノテーション）
 - [x] タップで釣り場詳細へ遷移
-- [x] 長押しで新規釣り場追加
+- [x] 長押しで新規釣り場追加（MapReader で座標取得 → pendingCoordinate → addSpotSheet 表示）
+  - [x] MapReader + LongPressGesture で長押し座標を取得
+  - [x] 長押し中・後に仮アノテーション（mappin）を表示
+  - [x] addSpotSheet に取得座標（緯度・経度）を読み取り専用で表示
+  - [x] 追加成功時のみシートを閉じる（失敗時はシートを維持してエラー表示）
 
 #### 設定画面
 - [x] サーバーURL 入力・保存（UserDefaults）
