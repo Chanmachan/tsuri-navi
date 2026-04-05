@@ -2,7 +2,7 @@
 
 ## システム全体図
 
-```
+```text
 [Swift iOS App (SwiftUI, iOS 17+)]
         │
         │ HTTP/JSON (URLSession)
@@ -21,7 +21,7 @@ iOS アプリはバックエンドを変更せず API を消費する。
 
 ## iOS アプリ構成
 
-```
+```text
 TsuriNavi/
 ├── App/
 │   └── TsuriNaviApp.swift          # エントリーポイント、起動時通知スケジュール

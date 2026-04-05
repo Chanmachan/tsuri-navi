@@ -1,16 +1,7 @@
 "use client";
 
 import dynImport from "next/dynamic";
-
-interface Spot {
-	id: number;
-	name: string;
-	latitude: number;
-	longitude: number;
-	type: string;
-	prefecture: string;
-	is_favorite: 0 | 1;
-}
+import type { Spot } from "../../src/db/schema";
 
 const SpotMap = dynImport(() => import("./SpotMap").then((m) => m.SpotMap), {
 	ssr: false,
