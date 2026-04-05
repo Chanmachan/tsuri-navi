@@ -26,6 +26,14 @@ export function getVapidPublicKey(): string {
 	return VAPID_PUBLIC_KEY;
 }
 
+export function assertPushConfigured(): void {
+	if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+		throw new Error(
+			"VAPID keys are not configured. Set NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY.",
+		);
+	}
+}
+
 export async function sendPushNotification(
 	subscription: PushSubscription,
 	payload: PushPayload,

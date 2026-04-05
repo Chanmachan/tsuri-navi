@@ -29,9 +29,10 @@ export function deleteSubscription(endpoint: string): void {
 
 export function getAllSubscriptions(): PushSubscription[] {
 	const db = getDb();
-	const rows = db
-		.prepare("SELECT endpoint, p256dh, auth FROM push_subscriptions")
-		.all() as SubscriptionRow[];
+	const rows = db.prepare("SELECT endpoint, p256dh, auth FROM push_subscriptions").all() as Pick<
+		SubscriptionRow,
+		"endpoint" | "p256dh" | "auth"
+	>[];
 	return rows.map((r) => ({
 		endpoint: r.endpoint,
 		keys: { p256dh: r.p256dh, auth: r.auth },

@@ -1,3 +1,4 @@
+import { isIP } from "node:net";
 import { NextRequest, NextResponse } from "next/server";
 import { deleteSubscription, saveSubscription } from "../../../../src/lib/push/subscriptions";
 
@@ -30,16 +31,12 @@ function checkRateLimit(ip: string): boolean {
 }
 
 function isPrivateHostname(hostname: string): boolean {
-	const h = hostname.toLowerCase();
-	return (
-		h === "localhost" ||
-		h === "::1" ||
-		h.endsWith(".local") ||
-		h.startsWith("127.") ||
-		h.startsWith("10.") ||
-		h.startsWith("192.168.") ||
-		/^172\.(1[6-9]|2\d|3[01])\./.test(h)
-	);
+	// Strip IPv6 brackets so isIP("::1") works correctly
+	const bare = hostname.replace(/^\[|\]$/g, "");
+	// Block all IP literals (both IPv4 and IPv6) — only domain names are allowed
+	if (isIP(bare) !== 0) return true;
+	const h = bare.toLowerCase();
+	return h === "localhost" || h.endsWith(".local");
 }
 
 function isValidPushEndpoint(value: string): boolean {

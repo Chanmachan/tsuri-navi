@@ -9,7 +9,11 @@
 
 import { getTodayJST } from "../src/lib/utils";
 import { getDb, closeDb } from "../src/db/client";
-import { sendPushNotification, type PushPayload } from "../src/lib/push/index";
+import {
+	assertPushConfigured,
+	sendPushNotification,
+	type PushPayload,
+} from "../src/lib/push/index";
 import { deleteSubscription, getAllSubscriptions } from "../src/lib/push/subscriptions";
 
 interface ScoreRow {
@@ -60,6 +64,8 @@ async function main() {
 	}
 
 	console.log(`Good spots (${spots.length}): ${spots.map((s) => s.spot_name).join(", ")}`);
+
+	assertPushConfigured();
 
 	const subscriptions = getAllSubscriptions();
 	if (subscriptions.length === 0) {
