@@ -10,6 +10,8 @@
     - `docs/spec.md`
     - relevant ADRs in `docs/adr/`
 - Plan → approval → implement. Never start coding without a plan.
+- Always work on a feature branch following the naming rules in `docs/adr/` → see `.claude/rules/git.md`.
+- Never commit directly to main. Open a PR for every change.
 
 ## Quality gates
 - Run lint, typecheck, and tests before finishing.
