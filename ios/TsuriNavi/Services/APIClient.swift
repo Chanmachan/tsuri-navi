@@ -2,14 +2,19 @@ import Foundation
 
 enum APIError: Error, LocalizedError {
     case invalidURL
-    case httpError(Int)
+    case httpError(Int, String?)
     case decodingError(Error)
 
     var errorDescription: String? {
         switch self {
-        case .invalidURL: return "Invalid server URL"
-        case .httpError(let code): return "HTTP error \(code)"
-        case .decodingError(let e): return "Decode error: \(e.localizedDescription)"
+        case .invalidURL:
+            return "サーバーURLが無効です"
+        case .httpError(_, let message?):
+            return message
+        case .httpError(let code, nil):
+            return "HTTP エラー \(code)"
+        case .decodingError(let e):
+            return "Decode error: \(e.localizedDescription)"
         }
     }
 }
@@ -42,12 +47,29 @@ final class APIClient {
         let url = try url(path, query: query)
         let (data, response) = try await URLSession.shared.data(from: url)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw APIError.httpError(http.statusCode)
+            throw parseHTTPError(data, statusCode: http.statusCode)
         }
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
             throw APIError.decodingError(error)
+        }
+    }
+
+    private func parseHTTPError(_ data: Data, statusCode: Int) -> APIError {
+        struct ErrorBody: Decodable { let error: String }
+        if let body = try? decoder.decode(ErrorBody.self, from: data) {
+            return APIError.httpError(statusCode, localizedServerError(body.error))
+        }
+        return APIError.httpError(statusCode, nil)
+    }
+
+    private func localizedServerError(_ key: String) -> String {
+        switch key {
+        case "home_location_not_set":
+            return "自宅位置が未設定です。「設定」タブで登録してください。"
+        default:
+            return key
         }
     }
 
@@ -81,7 +103,7 @@ final class APIClient {
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": "toggle_favorite"])
         let (data, response) = try await URLSession.shared.data(for: request)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw APIError.httpError(http.statusCode)
+            throw parseHTTPError(data, statusCode: http.statusCode)
         }
         struct ToggleResponse: Decodable { let is_favorite: Int }
         let result = try decoder.decode(ToggleResponse.self, from: data)
@@ -100,7 +122,7 @@ final class APIClient {
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         let (data, response) = try await URLSession.shared.data(for: request)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw APIError.httpError(http.statusCode)
+            throw parseHTTPError(data, statusCode: http.statusCode)
         }
         return try decoder.decode(Spot.self, from: data)
     }
@@ -111,7 +133,7 @@ final class APIClient {
         request.httpMethod = "DELETE"
         let (_, response) = try await URLSession.shared.data(for: request)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw APIError.httpError(http.statusCode)
+            throw APIError.httpError(http.statusCode, nil)
         }
     }
 }
