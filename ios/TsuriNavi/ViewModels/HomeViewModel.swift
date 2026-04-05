@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class HomeViewModel {
     var spots: [SpotWithScore] = []
     var isLoading = false

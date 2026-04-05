@@ -15,6 +15,7 @@ enum APIError: Error, LocalizedError {
 }
 
 @Observable
+@MainActor
 final class APIClient {
     private let settings: AppSettings
     private let decoder: JSONDecoder = {
@@ -27,8 +28,9 @@ final class APIClient {
     }
 
     private func url(_ path: String, query: [String: String] = [:]) throws -> URL {
-        var components = URLComponents(string: settings.serverURL + path)
-            ?? { fatalError("bad base URL") }()
+        guard var components = URLComponents(string: settings.serverURL + path) else {
+            throw APIError.invalidURL
+        }
         if !query.isEmpty {
             components.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
         }
@@ -36,7 +38,7 @@ final class APIClient {
         return url
     }
 
-    private func get<T: Decodable>(_ path: String, query: [String: String] = []) async throws -> T {
+    private func get<T: Decodable>(_ path: String, query: [String: String] = [:]) async throws -> T {
         let url = try url(path, query: query)
         let (data, response) = try await URLSession.shared.data(from: url)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {

@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class SpotDetailViewModel {
     var detail: SpotDetail?
     var selectedDate: String = ""

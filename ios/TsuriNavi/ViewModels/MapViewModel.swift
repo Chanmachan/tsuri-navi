@@ -2,6 +2,7 @@ import Foundation
 import MapKit
 
 @Observable
+@MainActor
 final class MapViewModel {
     var spots: [SpotWithScore] = []
     var region = MKCoordinateRegion(

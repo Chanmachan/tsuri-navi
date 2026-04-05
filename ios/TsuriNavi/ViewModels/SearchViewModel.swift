@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class SearchViewModel {
     var results: [SearchResult] = []
     var selectedDate: String = ""

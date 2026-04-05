@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class AppSettings {
     private let defaults = UserDefaults.standard
 
