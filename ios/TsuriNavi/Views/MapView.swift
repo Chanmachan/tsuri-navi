@@ -49,22 +49,19 @@ struct TsuriMapView: View {
 
     private func scorePin(spot: SpotWithScore) -> some View {
         let label = spot.todayScore?.label ?? "?"
-        let color: Color = {
-            switch label {
-            case "◎": return .green
-            case "○": return .blue
-            case "△": return .yellow
-            default: return .red
-            }
-        }()
+        let color = Color.scoreColor(for: label)
         return ZStack {
             Circle()
-                .fill(color.opacity(0.85))
-                .frame(width: 32, height: 32)
+                .fill(color)
+                .frame(width: 34, height: 34)
+            Circle()
+                .stroke(.white, lineWidth: 2)
+                .frame(width: 34, height: 34)
             Text(label)
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
         }
+        .shadow(color: color.opacity(0.4), radius: 4, x: 0, y: 2)
     }
 
     private var addSpotSheet: some View {

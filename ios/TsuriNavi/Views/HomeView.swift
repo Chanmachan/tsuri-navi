@@ -27,59 +27,75 @@ struct HomeView: View {
                 SpotRowView(spot: spot, onToggleFavorite: { await vm.toggleFavorite(spot: spot) })
             }
         }
+        .listStyle(.insetGrouped)
     }
 }
+
+// MARK: - Spot Row
 
 struct SpotRowView: View {
     let spot: SpotWithScore
     let onToggleFavorite: () async -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
+        HStack(spacing: 12) {
+            ScoreBadge(
+                label: spot.todayScore?.label ?? "-",
+                score: spot.todayScore?.score ?? 0
+            )
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(spot.name)
                     .font(.headline)
-                Spacer()
-                Button {
-                    Task { await onToggleFavorite() }
-                } label: {
-                    Image(systemName: spot.isFavorite == 1 ? "star.fill" : "star")
-                        .foregroundStyle(.yellow)
-                }
-                .buttonStyle(.plain)
-            }
+                    .foregroundStyle(.primary)
 
-            HStack(spacing: 12) {
                 if let score = spot.todayScore {
-                    ScoreBadge(label: score.label, score: score.score)
-                    if let best = score.bestHour {
-                        Text("ベスト \(best)時")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        Text("\(score.score)点")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.scoreColor(for: score.label))
+                        if let best = score.bestHour {
+                            Label("ベスト \(best)時", systemImage: "clock")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } else {
                     Text("データなし")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
             }
 
-            // weeklyScores はリストAPIには含まれないため非表示
+            Spacer(minLength: 0)
+
+            Button {
+                Task { await onToggleFavorite() }
+            } label: {
+                Image(systemName: spot.isFavorite == 1 ? "star.fill" : "star")
+                    .font(.system(size: 18))
+                    .foregroundStyle(spot.isFavorite == 1 ? Color.yellow : Color(.systemGray3))
+                    .contentTransition(.symbolEffect(.replace))
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
     }
 }
+
+// MARK: - Weekly Calendar Row (used in home list context)
 
 struct WeeklyCalendarRow: View {
     let scores: [WeeklyScore]
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ForEach(scores) { ws in
-                    VStack(spacing: 2) {
+                    VStack(spacing: 4) {
                         Text(shortDate(ws.date))
-                            .font(.system(size: 9))
+                            .font(.system(size: 10))
                             .foregroundStyle(.secondary)
                         ScoreBadge(label: ws.label, score: ws.score, compact: true)
                     }
@@ -95,27 +111,25 @@ struct WeeklyCalendarRow: View {
     }
 }
 
+// MARK: - Score Badge
+
 struct ScoreBadge: View {
     let label: String
     let score: Int
     var compact: Bool = false
 
-    var color: Color {
-        switch label {
-        case "◎": return .green
-        case "○": return .blue
-        case "△": return .yellow
-        default: return .red
-        }
-    }
+    var scoreColor: Color { .scoreColor(for: label) }
 
     var body: some View {
-        Text(label)
-            .font(compact ? .system(size: 12, weight: .bold) : .headline)
-            .frame(width: compact ? 22 : 32, height: compact ? 22 : 32)
-            .background(color.opacity(0.2))
-            .foregroundStyle(color)
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            .overlay(RoundedRectangle(cornerRadius: 4).stroke(color.opacity(0.5), lineWidth: 1))
+        ZStack {
+            Circle()
+                .fill(scoreColor.opacity(0.12))
+            Circle()
+                .stroke(scoreColor.opacity(0.3), lineWidth: compact ? 1 : 1.5)
+            Text(label)
+                .font(.system(size: compact ? 11 : 20, weight: .bold))
+                .foregroundStyle(scoreColor)
+        }
+        .frame(width: compact ? 28 : 44, height: compact ? 28 : 44)
     }
 }
