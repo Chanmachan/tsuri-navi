@@ -5,6 +5,7 @@ See: @AGENTS.md
 ## Session routine
 - Read `docs/spec.md` before implementation.
 - Keep changes small. Update `tasks/todo.md` as you go.
+- Mark a todo item as done (`- [x]`) only after the change is committed **and** lint/typecheck/tests all pass.
 - When context grows noisy, use /compact.
 
 ## Planning
