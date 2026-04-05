@@ -10,27 +10,19 @@ final class SearchViewModel {
     var error: String?
 
     private let api: APIClient
-    private let settings: AppSettings
 
-    init(api: APIClient, settings: AppSettings) {
+    init(api: APIClient) {
         self.api = api
-        self.settings = settings
         self.selectedDate = todayJST()
     }
 
     func search() async {
-        guard let lat = settings.homeLat, let lng = settings.homeLng else {
-            error = "自宅位置が設定されていません"
-            return
-        }
         isLoading = true
         error = nil
         do {
             results = try await api.search(
                 date: selectedDate,
-                maxDistanceKm: maxDistanceKm,
-                homeLat: lat,
-                homeLng: lng
+                maxDistanceKm: maxDistanceKm
             )
         } catch {
             self.error = error.localizedDescription

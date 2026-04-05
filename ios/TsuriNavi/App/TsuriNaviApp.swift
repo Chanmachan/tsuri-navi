@@ -29,7 +29,7 @@ struct ContentView: View {
         self.api = api
         _homeVM = State(initialValue: HomeViewModel(api: api, settings: settings))
         _mapVM = State(initialValue: MapViewModel(api: api))
-        _searchVM = State(initialValue: SearchViewModel(api: api, settings: settings))
+        _searchVM = State(initialValue: SearchViewModel(api: api))
     }
 
     var body: some View {

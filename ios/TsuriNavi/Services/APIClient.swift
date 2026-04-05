@@ -63,15 +63,14 @@ final class APIClient {
         return try await get("/api/spots/\(id)", query: query)
     }
 
-    func search(date: String, maxDistanceKm: Int, homeLat: Double, homeLng: Double) async throws -> [SearchResult] {
+    func search(date: String, maxDistanceKm: Int) async throws -> [SearchResult] {
         let query: [String: String] = [
             "date": date,
-            "maxDistanceKm": "\(maxDistanceKm)",
-            "lat": "\(homeLat)",
-            "lng": "\(homeLng)"
+            "maxDistanceKm": "\(maxDistanceKm)"
         ]
-        let response: SearchResponse = try await get("/api/search", query: query)
-        return response.results
+        // /api/search returns a plain array (not wrapped in { results: [] })
+        // Home location is read from server-side DB settings, not query params
+        return try await get("/api/search", query: query)
     }
 
     func toggleFavorite(id: Int) async throws -> Bool {

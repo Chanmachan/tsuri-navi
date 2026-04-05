@@ -9,18 +9,13 @@ struct SearchResult: Codable, Identifiable {
     let prefecture: String
     let isFavorite: Int
     let distanceKm: Double
-    let score: Int
-    let label: String
+    let score: Int?
+    let label: String?
     let bestHour: Int?
 
     enum CodingKeys: String, CodingKey {
-        case id, name, latitude, longitude, type, prefecture, score, label
+        case id, name, latitude, longitude, type, prefecture
         case isFavorite = "is_favorite"
-        case distanceKm = "distanceKm"
-        case bestHour = "bestHour"
+        case distanceKm, score, label, bestHour
     }
-}
-
-struct SearchResponse: Codable {
-    let results: [SearchResult]
 }
