@@ -44,6 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 						<span className="text-[10px]">マップ</span>
 					</Link>
 					<Link
+						href="/search"
+						className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-500 hover:text-sky-600 transition-colors"
+					>
+						<span className="text-xl">🔍</span>
+						<span className="text-[10px]">検索</span>
+					</Link>
+					<Link
 						href="/settings"
 						className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-500 hover:text-sky-600 transition-colors"
 					>
