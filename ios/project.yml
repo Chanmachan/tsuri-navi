@@ -9,6 +9,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: 6.0
+    SWIFT_STRICT_CONCURRENCY: complete
     IPHONEOS_DEPLOYMENT_TARGET: 17.0
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
