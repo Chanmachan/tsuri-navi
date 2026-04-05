@@ -26,12 +26,16 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
 	event.notification.close();
-	const url = event.notification.data?.url ?? "/";
+	const rawUrl = event.notification.data?.url ?? "/";
+	// Resolve relative URLs against the SW origin, then guard against cross-origin targets.
+	const target = new URL(rawUrl, self.location.origin);
+	if (target.origin !== self.location.origin) return;
+	const targetHref = target.href;
 	event.waitUntil(
 		self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
-			const existing = clients.find((c) => c.url === url);
+			const existing = clients.find((c) => c.url === targetHref);
 			if (existing) return existing.focus();
-			return self.clients.openWindow(url);
+			return self.clients.openWindow(targetHref);
 		}),
 	);
 });

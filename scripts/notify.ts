@@ -85,7 +85,8 @@ async function main() {
 			await sendPushNotification(sub, payload);
 			sent++;
 		} catch (err) {
-			console.warn(`Failed to send to ${sub.endpoint}: ${String(err)}`);
+			const preview = `${sub.endpoint.slice(0, 24)}…`;
+			console.warn(`Failed to send to ${preview}: ${String(err)}`);
 			failed++;
 		}
 	}

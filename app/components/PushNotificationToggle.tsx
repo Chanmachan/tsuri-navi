@@ -34,15 +34,18 @@ export function PushNotificationToggle() {
 
 			if (existing) {
 				await existing.unsubscribe();
-				await fetch("/api/push/subscribe", {
+				const delRes = await fetch("/api/push/subscribe", {
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ endpoint: existing.endpoint }),
 				});
-				setSubscribed(false);
+				if (delRes.ok || delRes.status === 404) {
+					setSubscribed(false);
+				}
 			} else {
-				const res = await fetch("/api/push/vapid-key");
-				const { publicKey } = await res.json();
+				const keyRes = await fetch("/api/push/vapid-key");
+				if (!keyRes.ok) return;
+				const { publicKey } = (await keyRes.json()) as { publicKey: string };
 				const keyBytes = urlBase64ToUint8Array(publicKey);
 				const sub = await reg.pushManager.subscribe({
 					userVisibleOnly: true,
@@ -52,7 +55,7 @@ export function PushNotificationToggle() {
 					) as ArrayBuffer,
 				});
 				const json = sub.toJSON();
-				await fetch("/api/push/subscribe", {
+				const postRes = await fetch("/api/push/subscribe", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
@@ -60,7 +63,9 @@ export function PushNotificationToggle() {
 						keys: json.keys,
 					}),
 				});
-				setSubscribed(true);
+				if (postRes.ok) {
+					setSubscribed(true);
+				}
 			}
 		} finally {
 			setLoading(false);

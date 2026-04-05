@@ -26,11 +26,13 @@
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
+    "@types/web-push": "^3.6.4",
     "better-sqlite3": "^12.8.0",
     "next": "^16.2.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "recharts": "^3.8.1",
+    "web-push": "^3.6.7",
     "workbox-webpack-plugin": "^7.4.0"
   }
 }
