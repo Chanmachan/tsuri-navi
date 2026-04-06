@@ -112,6 +112,7 @@ struct TsuriMapView: View {
             }
             .sheet(isPresented: $showAddSpotSheet, onDismiss: {
                 vm.pendingCoordinate = nil
+                vm.addSucceeded = false
                 coordinateSource = .none
                 searchQuery = ""
                 searchResults = []
@@ -255,7 +256,7 @@ struct TsuriMapView: View {
                                 type: newSpotType,
                                 prefecture: newSpotPrefecture
                             )
-                            if vm.error == nil {
+                            if vm.addSucceeded {
                                 showAddSpotSheet = false
                                 newSpotName = ""
                                 newSpotPrefecture = ""
