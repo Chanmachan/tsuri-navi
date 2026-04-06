@@ -106,15 +106,7 @@ struct HomeDatePicker: View {
     let selectedDate: String
     let onSelect: (String) -> Void
 
-    private var dates: [String] {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        return (0..<7).compactMap { offset in
-            Calendar.current.date(byAdding: .day, value: offset, to: Date())
-                .map { formatter.string(from: $0) }
-        }
-    }
+    private var dates: [String] { DateUtils.next7Days() }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -147,23 +139,8 @@ struct HomeDatePicker: View {
         }
     }
 
-    private func shortDate(_ date: String) -> String {
-        let parts = date.split(separator: "-")
-        guard parts.count == 3 else { return date }
-        return "\(parts[1])/\(parts[2])"
-    }
-
-    private func dayOfWeek(_ dateStr: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        guard let date = formatter.date(from: dateStr) else { return "" }
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "E"
-        dayFormatter.locale = Locale(identifier: "ja_JP")
-        dayFormatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        return dayFormatter.string(from: date)
-    }
+    private func shortDate(_ date: String) -> String { DateUtils.shortMonthDay(date) }
+    private func dayOfWeek(_ dateStr: String) -> String { DateUtils.dayOfWeek(dateStr) }
 }
 
 // MARK: - Score Badge

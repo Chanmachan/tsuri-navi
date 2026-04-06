@@ -4,7 +4,7 @@ import Foundation
 @MainActor
 final class HomeViewModel {
     var spots: [SpotWithScore] = []
-    var selectedDate: String = todayJST()
+    var selectedDate: String = DateUtils.todayJST()
     var isLoading = false
     var error: String?
 
@@ -45,9 +45,3 @@ final class HomeViewModel {
     }
 }
 
-private func todayJST() -> String {
-    let f = DateFormatter()
-    f.dateFormat = "yyyy-MM-dd"
-    f.timeZone = TimeZone(identifier: "Asia/Tokyo")
-    return f.string(from: Date())
-}

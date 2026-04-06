@@ -13,7 +13,7 @@ final class SearchViewModel {
 
     init(api: APIClient) {
         self.api = api
-        self.selectedDate = todayJST()
+        self.selectedDate = DateUtils.todayJST()
     }
 
     func search() async {
@@ -31,22 +31,9 @@ final class SearchViewModel {
     }
 
     var availableDates: [String] {
-        return (0..<8).compactMap {
-            Calendar.current.date(byAdding: .day, value: $0, to: Date())
-                .map { Self.jstDateFormatter.string(from: $0) }
+        (0..<8).compactMap {
+            DateUtils.jstCalendar.date(byAdding: .day, value: $0, to: Date())
+                .map { DateUtils.isoFormatter.string(from: $0) }
         }
     }
-
-    private func todayJST() -> String {
-        Self.jstDateFormatter.string(from: Date())
-    }
-
-    private static let jstDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.calendar = Calendar(identifier: .gregorian)
-        f.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        return f
-    }()
 }

@@ -9,8 +9,14 @@ import type { SpotType } from "../../../src/db/schema";
 
 export const dynamic = "force-dynamic";
 
+function isValidDate(d: string | null): d is string {
+	if (!d) return false;
+	return /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d));
+}
+
 export function GET(req: NextRequest) {
-	const date = req.nextUrl.searchParams.get("date") ?? getTodayJST();
+	const dateParam = req.nextUrl.searchParams.get("date");
+	const date = isValidDate(dateParam) ? dateParam : getTodayJST();
 	const spots = getAllSpotsWithTodayScore(date);
 	return NextResponse.json(spots);
 }
