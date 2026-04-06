@@ -101,7 +101,11 @@
 #### マップ画面
 - [x] 全登録釣り場の MapKit 表示（スコア色分けアノテーション）
 - [x] タップで釣り場詳細へ遷移
-- [x] 長押しで新規釣り場追加
+- [x] 長押しで新規釣り場追加（MapReader で座標取得 → pendingCoordinate → addSpotSheet 表示）
+  - [x] MapReader + LongPressGesture で長押し座標を取得
+  - [x] 長押し中・後に仮アノテーション（mappin）を表示
+  - [x] addSpotSheet に取得座標（緯度・経度）を読み取り専用で表示
+  - [x] 追加成功時のみシートを閉じる（失敗時はシートを維持してエラー表示）
 
 #### 設定画面
 - [x] サーバーURL 入力・保存（UserDefaults）
@@ -116,6 +120,14 @@
 - [x] 釣り場追加（POST /api/spots）
 - [ ] 釣り場編集・削除（PATCH / DELETE /api/spots/[id]）
 - [x] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
+
+#### 釣り場名称検索追加（MKLocalSearch）
+- [x] ツールバーに「+」ボタンを追加（長押し不要で追加シートを開けるパス）
+- [x] 追加シートに名称検索フィールドを実装
+  - [x] TextField → 400ms debounce → MKLocalSearch で検索
+  - [x] 検索結果リスト表示（名称・市区町村・都道府県）
+  - [x] 結果タップで名前・座標・都道府県を自動入力
+- [x] 座標表示の状態管理（未選択 / 長押し取得済み / 検索選択済み）
 
 ## Blockers
 - tide736.net APIのレート制限の実測

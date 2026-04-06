@@ -12,6 +12,7 @@ final class MapViewModel {
     var pendingCoordinate: CLLocationCoordinate2D?
     var isLoading = false
     var error: String?
+    var addSucceeded = false
 
     private let api: APIClient
 
@@ -37,6 +38,7 @@ final class MapViewModel {
                 name: name, latitude: coord.latitude, longitude: coord.longitude,
                 type: type, prefecture: prefecture
             )
+            addSucceeded = true
             pendingCoordinate = nil
             await load()
         } catch {
