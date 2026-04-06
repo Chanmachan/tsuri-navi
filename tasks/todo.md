@@ -121,6 +121,13 @@
 - [ ] 釣り場編集・削除（PATCH / DELETE /api/spots/[id]）
 - [x] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
 
+#### ホーム画面 日付切り替え
+- [ ] バックエンド: `GET /api/spots` に `?date=YYYY-MM-DD` クエリパラメータ対応（省略時は当日）
+- [ ] iOS: `HomeViewModel` に `selectedDate: Date` を追加し、`fetchSpots(date:)` に対応
+- [ ] iOS: ホーム画面の週間カレンダーで日付タップ → `selectedDate` 更新 → スポット一覧再取得
+- [ ] iOS: スポット一覧のスコア・ベストタイムが選択日のデータを表示
+- [ ] iOS: 詳細画面遷移時に `selectedDate` を引き継ぐ（詳細画面の初期日付に設定）
+
 #### 釣り場名称検索追加（MKLocalSearch）
 - [x] ツールバーに「+」ボタンを追加（長押し不要で追加シートを開けるパス）
 - [x] 追加シートに名称検索フィールドを実装
