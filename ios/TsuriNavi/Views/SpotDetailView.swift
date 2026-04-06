@@ -4,6 +4,7 @@ import Charts
 struct SpotDetailView: View {
     let spotId: Int
     let spotName: String
+    var initialDate: String? = nil
 
     @State private var vm: SpotDetailViewModel?
     @Environment(APIClient.self) private var api
@@ -60,6 +61,7 @@ struct SpotDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             let newVM = SpotDetailViewModel(api: api)
+            if let initialDate { newVM.selectedDate = initialDate }
             vm = newVM
             await newVM.load(spotId: spotId)
         }

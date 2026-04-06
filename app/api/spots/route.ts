@@ -9,9 +9,9 @@ import type { SpotType } from "../../../src/db/schema";
 
 export const dynamic = "force-dynamic";
 
-export function GET() {
-	const today = getTodayJST();
-	const spots = getAllSpotsWithTodayScore(today);
+export function GET(req: NextRequest) {
+	const date = req.nextUrl.searchParams.get("date") ?? getTodayJST();
+	const spots = getAllSpotsWithTodayScore(date);
 	return NextResponse.json(spots);
 }
 
