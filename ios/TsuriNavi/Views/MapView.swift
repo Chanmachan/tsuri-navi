@@ -297,15 +297,21 @@ struct TsuriMapView: View {
         let suffix = query.contains(newSpotType) ? "" : " \(newSpotType)"
         let keyword = "\(query)\(suffix)"
 
-        // Step 1: MKLocalSearch (Apple Maps POI)
-        var candidates = await searchAppleMaps(keyword: "\(keyword) 日本")
+        // Nominatim（OSM）と Apple Maps を並列実行し、OSM 結果を優先表示
+        async let nominatim = searchNominatim(query: keyword)
+        async let apple = searchAppleMaps(keyword: "\(keyword) 日本")
+        let (osmResults, appleResults) = await (nominatim, apple)
 
-        // Step 2: Nominatim フォールバック（小規模漁港は Apple Maps 未収録が多い）
-        if candidates.isEmpty {
-            candidates = await searchNominatim(query: keyword)
+        // 重複を除いてマージ（OSM 優先、Apple は補完）
+        var seen = Set<String>()
+        var merged: [SpotCandidate] = []
+        for c in osmResults + appleResults {
+            let key = "\(String(format: "%.3f", c.coordinate.latitude)),\(String(format: "%.3f", c.coordinate.longitude))"
+            if seen.insert(key).inserted {
+                merged.append(c)
+            }
         }
-
-        searchResults = candidates
+        searchResults = Array(merged.prefix(6))
         isSearching = false
     }
 
@@ -342,18 +348,12 @@ struct TsuriMapView: View {
         guard let (data, _) = try? await URLSession.shared.data(for: urlRequest) else { return [] }
 
         struct Hit: Decodable {
+            let name: String           // トップレベルの施設名
             let lat: String
             let lon: String
-            let displayName: String
             let address: Addr?
-            enum CodingKeys: String, CodingKey {
-                case lat, lon
-                case displayName = "display_name"
-                case address
-            }
             struct Addr: Decodable {
-                let name: String?
-                let state: String?
+                let province: String?  // 日本の都道府県は "province" キー
                 let city: String?
                 let town: String?
                 let village: String?
@@ -363,13 +363,11 @@ struct TsuriMapView: View {
         guard let hits = try? JSONDecoder().decode([Hit].self, from: data) else { return [] }
         return hits.compactMap { hit in
             guard let lat = Double(hit.lat), let lon = Double(hit.lon) else { return nil }
-            let name = hit.address?.name
-                ?? String(hit.displayName.split(separator: ",").first.map(String.init) ?? hit.displayName)
-            let prefecture = hit.address?.state ?? ""
+            let prefecture = hit.address?.province ?? ""
             let locality = hit.address?.city ?? hit.address?.town ?? hit.address?.village ?? ""
             let subtitle = [prefecture, locality].filter { !$0.isEmpty }.joined(separator: " ")
             return SpotCandidate(
-                name: name,
+                name: hit.name,
                 coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
                 prefecture: prefecture,
                 subtitle: subtitle
