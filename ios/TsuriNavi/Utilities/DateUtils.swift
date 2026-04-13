@@ -30,12 +30,15 @@ enum DateUtils {
         isoFormatter.string(from: Date())
     }
 
-    static func next7Days() -> [String] {
-        (0..<7).compactMap { offset in
-            jstCalendar.date(byAdding: .day, value: offset, to: Date())
+    static func nextDays(count: Int) -> [String] {
+        let base = jstCalendar.startOfDay(for: Date())
+        return (0..<count).compactMap { offset in
+            jstCalendar.date(byAdding: .day, value: offset, to: base)
                 .map { isoFormatter.string(from: $0) }
         }
     }
+
+    static func next7Days() -> [String] { nextDays(count: 7) }
 
     static func dayOfWeek(_ dateStr: String) -> String {
         guard let date = isoFormatter.date(from: dateStr) else { return "" }
