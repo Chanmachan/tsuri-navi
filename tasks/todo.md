@@ -145,10 +145,10 @@
 > architecture.md で規定済みの「毎朝5:00 JST に collect → score → notify」を実装する。
 > Next.js `instrumentation.ts`（15+でstable）を起動フックとして使う。
 
-- [ ] `node-cron` + `@types/node-cron` インストール
-- [ ] `src/lib/scheduler.ts` 実装（毎朝5:00 JST: collectSpotData → runScoreBatchForSpot → notify）
-- [ ] `instrumentation.ts` 作成（Next.jsサーバー起動時にスケジューラ登録）
-- [ ] スケジューラのユニットテスト（cron登録が呼ばれることを確認）
+- [x] `node-cron` + `@types/node-cron` インストール
+- [x] `src/lib/scheduler.ts` 実装（毎朝5:00 JST: collectSpotData → runScoreBatchForSpot → notify）
+- [x] `instrumentation.ts` 作成（Next.jsサーバー起動時にスケジューラ登録）
+- [x] スケジューラのユニットテスト（cron登録が呼ばれることを確認）
 - [ ] 動作確認（`npm run dev` 起動後にログでスケジューラ登録が確認できる）
 
 ## Blockers
