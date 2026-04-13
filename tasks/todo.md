@@ -118,8 +118,12 @@
 
 #### 釣り場管理
 - [x] 釣り場追加（POST /api/spots）
-- [ ] 釣り場編集・削除（PATCH / DELETE /api/spots/[id]）
 - [x] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
+
+#### ホーム画面 釣り場削除
+- [ ] iOS: `HomeViewModel.deleteSpot(id:)` を実装（`DELETE /api/spots/[id]` 呼び出し → 再fetch）
+- [ ] iOS: `SpotRowView` に左スワイプ削除アクション（`.swipeActions`）を追加
+- [ ] iOS: 削除前に確認ダイアログ（`.confirmationDialog`）を表示
 
 #### ホーム画面 日付切り替え
 - [x] バックエンド: `GET /api/spots` に `?date=YYYY-MM-DD` クエリパラメータ対応（省略時は当日）
@@ -135,6 +139,17 @@
   - [x] 検索結果リスト表示（名称・市区町村・都道府県）
   - [x] 結果タップで名前・座標・都道府県を自動入力
 - [x] 座標表示の状態管理（未選択 / 長押し取得済み / 検索選択済み）
+
+### Phase 11: 自動バッチスケジューラ（node-cron）
+
+> architecture.md で規定済みの「毎朝5:00 JST に collect → score → notify」を実装する。
+> Next.js `instrumentation.ts`（15+でstable）を起動フックとして使う。
+
+- [ ] `node-cron` + `@types/node-cron` インストール
+- [ ] `src/lib/scheduler.ts` 実装（毎朝5:00 JST: collectSpotData → runScoreBatchForSpot → notify）
+- [ ] `instrumentation.ts` 作成（Next.jsサーバー起動時にスケジューラ登録）
+- [ ] スケジューラのユニットテスト（cron登録が呼ばれることを確認）
+- [ ] 動作確認（`npm run dev` 起動後にログでスケジューラ登録が確認できる）
 
 ## Blockers
 - tide736.net APIのレート制限の実測
