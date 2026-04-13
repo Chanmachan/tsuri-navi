@@ -19,7 +19,9 @@ final class HomeViewModel {
     func load() async {
         let requestedDate = selectedDate
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            if requestedDate == selectedDate { isLoading = false }
+        }
         error = nil
         do {
             let loadedSpots = try await api.fetchSpots(date: requestedDate)
@@ -35,6 +37,7 @@ final class HomeViewModel {
     }
 
     func selectDate(_ date: String) async {
+        guard date != selectedDate else { return }
         selectedDate = date
         await load()
     }

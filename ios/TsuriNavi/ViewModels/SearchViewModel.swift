@@ -30,10 +30,5 @@ final class SearchViewModel {
         isLoading = false
     }
 
-    var availableDates: [String] {
-        (0..<8).compactMap {
-            DateUtils.jstCalendar.date(byAdding: .day, value: $0, to: Date())
-                .map { DateUtils.isoFormatter.string(from: $0) }
-        }
-    }
+    var availableDates: [String] { DateUtils.nextDays(count: 8) }
 }
