@@ -149,7 +149,7 @@
 - [x] `src/lib/scheduler.ts` 実装（毎朝5:00 JST: collectSpotData → runScoreBatchForSpot → notify）
 - [x] `instrumentation.ts` 作成（Next.jsサーバー起動時にスケジューラ登録）
 - [x] スケジューラのユニットテスト（cron登録が呼ばれることを確認）
-- [ ] 動作確認（`npm run dev` 起動後にログでスケジューラ登録が確認できる）
+- [x] 動作確認（`npm run dev` 起動後にログでスケジューラ登録が確認できる）
 
 ## Blockers
 - tide736.net APIのレート制限の実測
