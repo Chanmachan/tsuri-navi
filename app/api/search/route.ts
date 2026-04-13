@@ -11,8 +11,28 @@ const DEFAULT_DISTANCE_KM = 100;
 export function GET(req: NextRequest): NextResponse {
 	const { searchParams } = req.nextUrl;
 
-	const settings = getSettings();
-	if (settings.home_latitude == null || settings.home_longitude == null) {
+	// Prefer homeLat/homeLng from query params (sent by iOS client).
+	// Fall back to server-side DB settings for web PWA.
+	let homeLat: number | null = null;
+	let homeLng: number | null = null;
+
+	const rawLat = searchParams.get("homeLat");
+	const rawLng = searchParams.get("homeLng");
+	if (rawLat != null && rawLng != null) {
+		const parsedLat = Number(rawLat);
+		const parsedLng = Number(rawLng);
+		if (!Number.isFinite(parsedLat) || !Number.isFinite(parsedLng)) {
+			return NextResponse.json({ error: "invalid home location" }, { status: 400 });
+		}
+		homeLat = parsedLat;
+		homeLng = parsedLng;
+	} else {
+		const settings = getSettings();
+		homeLat = settings.home_latitude;
+		homeLng = settings.home_longitude;
+	}
+
+	if (homeLat == null || homeLng == null) {
 		return NextResponse.json({ error: "home_location_not_set" }, { status: 400 });
 	}
 
@@ -29,12 +49,7 @@ export function GET(req: NextRequest): NextResponse {
 	}
 	const maxDistanceKm = Math.min(rawDist, MAX_DISTANCE_KM);
 
-	const results = searchSpotsByDistance(
-		settings.home_latitude,
-		settings.home_longitude,
-		rawDate,
-		maxDistanceKm,
-	);
+	const results = searchSpotsByDistance(homeLat, homeLng, rawDate, maxDistanceKm);
 
 	return NextResponse.json(results);
 }

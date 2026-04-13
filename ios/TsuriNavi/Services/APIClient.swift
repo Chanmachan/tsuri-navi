@@ -88,12 +88,14 @@ final class APIClient {
     }
 
     func search(date: String, maxDistanceKm: Int) async throws -> [SearchResult] {
-        let query: [String: String] = [
+        var query: [String: String] = [
             "date": date,
             "maxDistanceKm": "\(maxDistanceKm)"
         ]
-        // /api/search returns a plain array (not wrapped in { results: [] })
-        // Home location is read from server-side DB settings, not query params
+        if let lat = settings.homeLat, let lng = settings.homeLng {
+            query["homeLat"] = "\(lat)"
+            query["homeLng"] = "\(lng)"
+        }
         return try await get("/api/search", query: query)
     }
 
