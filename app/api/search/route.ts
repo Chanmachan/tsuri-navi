@@ -18,7 +18,11 @@ export function GET(req: NextRequest): NextResponse {
 
 	const rawLat = searchParams.get("homeLat");
 	const rawLng = searchParams.get("homeLng");
-	if (rawLat != null && rawLng != null) {
+	if (rawLat != null || rawLng != null) {
+		// Partial input or empty strings are invalid
+		if (rawLat == null || rawLng == null || rawLat === "" || rawLng === "") {
+			return NextResponse.json({ error: "invalid home location" }, { status: 400 });
+		}
 		const parsedLat = Number(rawLat);
 		const parsedLng = Number(rawLng);
 		if (!Number.isFinite(parsedLat) || !Number.isFinite(parsedLng)) {

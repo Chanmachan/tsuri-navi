@@ -88,6 +88,42 @@ describe("GET /api/search", () => {
 		expect(res.status).toBe(400);
 	});
 
+	it("returns 400 when only homeLat is provided", async () => {
+		const res = await GET(
+			makeRequest({ date: "2026-04-14", maxDistanceKm: "50", homeLat: "37.05" }),
+		);
+		expect(res.status).toBe(400);
+		expect((await res.json()).error).toBe("invalid home location");
+		expect(mockSearch).not.toHaveBeenCalled();
+	});
+
+	it("returns 400 when only homeLng is provided", async () => {
+		const res = await GET(
+			makeRequest({ date: "2026-04-14", maxDistanceKm: "50", homeLng: "140.97" }),
+		);
+		expect(res.status).toBe(400);
+		expect((await res.json()).error).toBe("invalid home location");
+		expect(mockSearch).not.toHaveBeenCalled();
+	});
+
+	it("returns 400 when homeLat is empty string", async () => {
+		const res = await GET(
+			makeRequest({ date: "2026-04-14", maxDistanceKm: "50", homeLat: "", homeLng: "140.97" }),
+		);
+		expect(res.status).toBe(400);
+		expect((await res.json()).error).toBe("invalid home location");
+		expect(mockSearch).not.toHaveBeenCalled();
+	});
+
+	it("returns 400 when homeLng is empty string", async () => {
+		const res = await GET(
+			makeRequest({ date: "2026-04-14", maxDistanceKm: "50", homeLat: "37.05", homeLng: "" }),
+		);
+		expect(res.status).toBe(400);
+		expect((await res.json()).error).toBe("invalid home location");
+		expect(mockSearch).not.toHaveBeenCalled();
+	});
+
 	it("clamps maxDistanceKm to 500", async () => {
 		await GET(
 			makeRequest({
