@@ -73,19 +73,26 @@ export async function runNotifyBatch(): Promise<NotifyBatchResult> {
 		url: `/spots/${bestSpot.spot_id}`,
 	};
 
+	const results = await Promise.allSettled(
+		subscriptions.map(async (sub) => {
+			try {
+				await sendPushNotification(sub, payload);
+				return true;
+			} catch (err) {
+				const statusCode = (err as { statusCode?: number }).statusCode;
+				if (statusCode === 404 || statusCode === 410) {
+					deleteSubscription(sub.endpoint);
+				}
+				return false;
+			}
+		}),
+	);
+
 	let sent = 0;
 	let failed = 0;
-	for (const sub of subscriptions) {
-		try {
-			await sendPushNotification(sub, payload);
-			sent++;
-		} catch (err) {
-			const statusCode = (err as { statusCode?: number }).statusCode;
-			if (statusCode === 404 || statusCode === 410) {
-				deleteSubscription(sub.endpoint);
-			}
-			failed++;
-		}
+	for (const result of results) {
+		if (result.status === "fulfilled" && result.value) sent++;
+		else failed++;
 	}
 
 	return { targetDate, goodSpotCount: spots.length, sent, failed, skipped: false };

@@ -5,6 +5,8 @@ enum DateUtils {
 
     static let isoFormatter: DateFormatter = {
         let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.calendar = Calendar(identifier: .gregorian)
         f.dateFormat = "yyyy-MM-dd"
         f.timeZone = jst
         return f

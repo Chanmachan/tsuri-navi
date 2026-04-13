@@ -26,8 +26,10 @@ async function runBatch(): Promise<void> {
 	const ts = new Date().toISOString();
 	console.log(`[scheduler] ${ts} batch started`);
 
+	let batchOk = false;
 	try {
 		const result = await runFullBatch();
+		batchOk = true;
 		console.log(
 			`[scheduler] batch done — collect: ${result.collectOk} ok / ${result.collectFail} fail, scores: ${result.totalHourly}h ${result.totalSummaries}d`,
 		);
@@ -37,6 +39,8 @@ async function runBatch(): Promise<void> {
 	} catch (err) {
 		console.error(`[scheduler] batch error: ${String(err)}`);
 	}
+
+	if (!batchOk) return;
 
 	try {
 		const notifyResult = await runNotifyBatch();

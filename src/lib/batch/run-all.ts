@@ -21,6 +21,7 @@ export interface FullBatchResult {
 export async function runFullBatch(): Promise<FullBatchResult> {
 	seedPresetSpots();
 
+	const batchStart = new Date();
 	const db = getDb();
 	const spots = db.prepare("SELECT * FROM spots").all() as Spot[];
 
@@ -33,14 +34,15 @@ export async function runFullBatch(): Promise<FullBatchResult> {
 	for (const spot of spots) {
 		let data;
 		try {
-			data = await collectSpotData(spot, new Date(), 7);
+			data = await collectSpotData(spot, batchStart, 7);
 			saveCollectedData(data);
 			if (data.errors.length > 0) {
 				errors.push(...data.errors.map((e) => `[${spot.name}] ${e}`));
 			}
 			collectOk++;
 		} catch (err) {
-			errors.push(`[${spot.name}] collect failed: ${(err as Error).message}`);
+			const msg = err instanceof Error ? err.message : String(err);
+			errors.push(`[${spot.name}] collect failed: ${msg}`);
 			collectFail++;
 			continue;
 		}
@@ -57,7 +59,8 @@ export async function runFullBatch(): Promise<FullBatchResult> {
 				errors.push(...result.errors.map((e) => `[${spot.name}] ${e}`));
 			}
 		} catch (err) {
-			errors.push(`[${spot.name}] score failed: ${(err as Error).message}`);
+			const msg = err instanceof Error ? err.message : String(err);
+			errors.push(`[${spot.name}] score failed: ${msg}`);
 		}
 	}
 

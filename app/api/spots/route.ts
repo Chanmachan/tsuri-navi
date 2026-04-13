@@ -10,8 +10,12 @@ import type { SpotType } from "../../../src/db/schema";
 export const dynamic = "force-dynamic";
 
 function isValidDate(d: string | null): d is string {
-	if (!d) return false;
-	return /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d));
+	if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+	const [year, month, day] = d.split("-").map(Number);
+	const date = new Date(Date.UTC(year, month - 1, day));
+	return (
+		date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+	);
 }
 
 export function GET(req: NextRequest) {
