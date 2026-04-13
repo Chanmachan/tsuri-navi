@@ -12,7 +12,7 @@ final class SpotDetailViewModel {
 
     init(api: APIClient) {
         self.api = api
-        self.selectedDate = todayJST()
+        self.selectedDate = DateUtils.todayJST()
     }
 
     func load(spotId: Int) async {
@@ -32,10 +32,4 @@ final class SpotDetailViewModel {
         await load(spotId: spotId)
     }
 
-    private func todayJST() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "Asia/Tokyo")
-        return formatter.string(from: Date())
-    }
 }

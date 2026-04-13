@@ -22,9 +22,25 @@ struct HomeView: View {
     }
 
     private var spotList: some View {
-        List(vm.spots) { spot in
-            NavigationLink(destination: SpotDetailView(spotId: spot.id, spotName: spot.name)) {
-                SpotRowView(spot: spot, onToggleFavorite: { await vm.toggleFavorite(spot: spot) })
+        List {
+            Section {
+                HomeDatePicker(
+                    selectedDate: vm.selectedDate,
+                    onSelect: { date in Task { await vm.selectDate(date) } }
+                )
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+            }
+
+            Section {
+                ForEach(vm.spots) { spot in
+                    NavigationLink(destination: SpotDetailView(
+                        spotId: spot.id,
+                        spotName: spot.name,
+                        initialDate: vm.selectedDate
+                    )) {
+                        SpotRowView(spot: spot, onToggleFavorite: { await vm.toggleFavorite(spot: spot) })
+                    }
+                }
             }
         }
         .listStyle(.insetGrouped)
@@ -84,31 +100,47 @@ struct SpotRowView: View {
     }
 }
 
-// MARK: - Weekly Calendar Row (used in home list context)
+// MARK: - Home Date Picker
 
-struct WeeklyCalendarRow: View {
-    let scores: [WeeklyScore]
+struct HomeDatePicker: View {
+    let selectedDate: String
+    let onSelect: (String) -> Void
+
+    private var dates: [String] { DateUtils.next7Days() }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(scores) { ws in
-                    VStack(spacing: 4) {
-                        Text(shortDate(ws.date))
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
-                        ScoreBadge(label: ws.label, score: ws.score, compact: true)
+                ForEach(dates, id: \.self) { date in
+                    Button { onSelect(date) } label: {
+                        VStack(spacing: 4) {
+                            Text(dayOfWeek(date))
+                                .font(.system(size: 10))
+                                .foregroundStyle(date == selectedDate ? Color.oceanPrimary : .secondary)
+                            Text(shortDate(date))
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(date == selectedDate ? Color.oceanPrimary : .primary)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(date == selectedDate ? Color.oceanPrimary.opacity(0.12) : Color.clear)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(date == selectedDate ? Color.oceanPrimary.opacity(0.4) : Color.clear, lineWidth: 1)
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
             }
+            .padding(.vertical, 2)
         }
     }
 
-    private func shortDate(_ date: String) -> String {
-        let parts = date.split(separator: "-")
-        guard parts.count == 3 else { return date }
-        return "\(parts[1])/\(parts[2])"
-    }
+    private func shortDate(_ date: String) -> String { DateUtils.shortMonthDay(date) }
+    private func dayOfWeek(_ dateStr: String) -> String { DateUtils.dayOfWeek(dateStr) }
 }
 
 // MARK: - Score Badge

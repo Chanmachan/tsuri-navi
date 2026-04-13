@@ -75,8 +75,10 @@ final class APIClient {
 
     // MARK: - Endpoints
 
-    func fetchSpots() async throws -> [SpotWithScore] {
-        return try await get("/api/spots")
+    func fetchSpots(date: String? = nil) async throws -> [SpotWithScore] {
+        var query: [String: String] = [:]
+        if let date { query["date"] = date }
+        return try await get("/api/spots", query: query)
     }
 
     func fetchSpotDetail(id: Int, date: String? = nil) async throws -> SpotDetail {

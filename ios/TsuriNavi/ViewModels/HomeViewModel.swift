@@ -4,6 +4,7 @@ import Foundation
 @MainActor
 final class HomeViewModel {
     var spots: [SpotWithScore] = []
+    var selectedDate: String = DateUtils.todayJST()
     var isLoading = false
     var error: String?
 
@@ -16,17 +17,26 @@ final class HomeViewModel {
     }
 
     func load() async {
+        let requestedDate = selectedDate
         isLoading = true
+        defer { isLoading = false }
         error = nil
         do {
-            spots = try await api.fetchSpots()
+            let loadedSpots = try await api.fetchSpots(date: requestedDate)
+            guard requestedDate == selectedDate else { return }
+            spots = loadedSpots
             if settings.notificationsEnabled {
-                await NotificationService.shared.resetAndReschedule(api: api, spots: spots)
+                await NotificationService.shared.resetAndReschedule(api: api, spots: loadedSpots)
             }
         } catch {
+            guard requestedDate == selectedDate else { return }
             self.error = error.localizedDescription
         }
-        isLoading = false
+    }
+
+    func selectDate(_ date: String) async {
+        selectedDate = date
+        await load()
     }
 
     func toggleFavorite(spot: SpotWithScore) async {
@@ -38,3 +48,4 @@ final class HomeViewModel {
         await load()
     }
 }
+
