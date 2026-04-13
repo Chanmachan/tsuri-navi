@@ -3,15 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
     ports:
       - "3002:3000"
     volumes:
-      - .:/app
-      - /app/node_modules
       - db_data:/app/data
     environment:
-      - NODE_ENV=development
       - DB_PATH=/app/data/tsuri-navi.db
     restart: unless-stopped
 

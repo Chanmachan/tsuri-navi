@@ -1,13 +1,7 @@
-# Production overrides: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+# Production overrides: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 services:
   app:
     build:
       target: runner
-    ports:
-      - "3002:3000"
-    volumes:
-      - db_data:/app/data
     environment:
       - NODE_ENV=production
-      - DB_PATH=/app/data/tsuri-navi.db
-    restart: unless-stopped
