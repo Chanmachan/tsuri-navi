@@ -37,3 +37,5 @@ targets:
         NSLocationAlwaysAndWhenInUseUsageDescription: "自宅位置の取得に使用します"
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
