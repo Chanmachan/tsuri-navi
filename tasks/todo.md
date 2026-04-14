@@ -151,6 +151,23 @@
 - [x] スケジューラのユニットテスト（cron登録が呼ばれることを確認）
 - [x] 動作確認（`npm run dev` 起動後にログでスケジューラ登録が確認できる）
 
+### Bug: 検索機能 - 自宅位置未送信
+- [x] Backend: `GET /api/search` で `homeLat`/`homeLng` クエリパラメータを受け取る対応（`user_settings` DB 参照を削除）
+- [x] iOS: `APIClient.search()` に `homeLat: Double?` / `homeLng: Double?` パラメータ追加
+- [x] iOS: `SearchViewModel` で `AppSettings` から自宅位置を取得して `APIClient.search()` に渡す
+
+### Bug: 潮回り情報（大潮・中潮等）が表示されない
+- [x] DB: `weather_cache` に `tide_cycle` カラム追加（マイグレーション）
+- [x] Batch: `collector.ts` で tide736 の `tideType`（潮回り）を `tide_cycle` としてDBに保存
+- [x] API: `/api/spots/[id]` レスポンスの `HourlyWeather` に `tideCycle` フィールド追加
+- [x] iOS: `SpotDetail.HourlyWeather` に `tideCycle: String?` フィールド追加
+- [x] iOS: 詳細画面のタイドグラフまたは天気テーブルに潮回り（例: "中潮"）を表示
+
+### Phase 12: アプリアイコン
+- [ ] アイコン素材デザイン（釣り竿・魚・波をモチーフ、1024×1024px）
+- [ ] iOS アプリアイコン生成（AppIcon.appiconset: 各サイズ揃え）
+- [ ] PWA アイコン更新（manifest.json の `icons` を差し替え）
+
 ## Blockers
 - tide736.net APIのレート制限の実測
 
