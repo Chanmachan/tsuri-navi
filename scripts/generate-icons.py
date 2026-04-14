@@ -109,9 +109,11 @@ def create_base_icon(size: int = 1024) -> Image.Image:
     return img
 
 
-def save_png(img: Image.Image, path: str, size: int) -> None:
+def save_png(img: Image.Image, path: str, size: int, *, force_rgb: bool = False) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     resized = img.resize((size, size), Image.LANCZOS)
+    if force_rgb:
+        resized = resized.convert("RGB")
     resized.save(path, "PNG")
     print(f"  wrote {size}x{size} → {os.path.relpath(path, ROOT)}")
 
@@ -122,7 +124,7 @@ def main() -> None:
 
     # ── iOS AppIcon.appiconset (single 1024px, Xcode 15+ / iOS 17) ───────────
     ios_dir = os.path.join(ROOT, "ios", "TsuriNavi", "Assets.xcassets", "AppIcon.appiconset")
-    save_png(base, os.path.join(ios_dir, "AppIcon-1024.png"), 1024)
+    save_png(base, os.path.join(ios_dir, "AppIcon-1024.png"), 1024, force_rgb=True)
 
     # ── PWA icons ─────────────────────────────────────────────────────────────
     pwa_dir = os.path.join(ROOT, "public", "icons")

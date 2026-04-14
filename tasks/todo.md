@@ -165,7 +165,7 @@
 
 ### Phase 12: アプリアイコン
 - [x] アイコン素材デザイン（釣り竿・魚・波をモチーフ、1024×1024px）
-- [x] iOS アプリアイコン生成（AppIcon.appiconset: 各サイズ揃え）
+- [x] iOS アプリアイコン生成（AppIcon.appiconset: Xcode 15+ 単一 1024×1024px）
 - [x] PWA アイコン更新（manifest.json の `icons` を差し替え）
 
 ## Blockers
