@@ -164,9 +164,9 @@
 - [x] iOS: 詳細画面のタイドグラフまたは天気テーブルに潮回り（例: "中潮"）を表示
 
 ### Phase 12: アプリアイコン
-- [ ] アイコン素材デザイン（釣り竿・魚・波をモチーフ、1024×1024px）
-- [ ] iOS アプリアイコン生成（AppIcon.appiconset: 各サイズ揃え）
-- [ ] PWA アイコン更新（manifest.json の `icons` を差し替え）
+- [x] アイコン素材デザイン（釣り竿・魚・波をモチーフ、1024×1024px）
+- [x] iOS アプリアイコン生成（AppIcon.appiconset: Xcode 15+ 単一 1024×1024px）
+- [x] PWA アイコン更新（manifest.json の `icons` を差し替え）
 
 ## Blockers
 - tide736.net APIのレート制限の実測

@@ -8,9 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		209A5589967A4E600689C92B /* SpotDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836B494A5188651FA7068CD6 /* SpotDetailView.swift */; };
+		230945E6F688D9A13C9F60CE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D33B4A801D8B0CCBF345B571 /* Assets.xcassets */; };
 		37F9038850B125F9123CBE1F /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29F5FCFBB14B67529E40BCA /* SearchViewModel.swift */; };
 		38D2C3C999F04EDF09FC5A16 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E8539BB921C45FA5F716A3A /* AppTheme.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E1F2 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* DateUtils.swift */; };
 		3E5C242E843675F387891209 /* Spot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F09AB05F8F7AA84A85A6AA8 /* Spot.swift */; };
 		3FA863AFED75888F03FB9E96 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F343729DD8A26B057A3FE8DE /* NotificationService.swift */; };
 		41A431C80AC70300365D1A23 /* TsuriNaviApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB7FBE8885D7CBACFA95BE0 /* TsuriNaviApp.swift */; };
@@ -21,6 +21,7 @@
 		96F8BC21FDB5E237239D5867 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60CDD3EC5414E16863705A9 /* HomeViewModel.swift */; };
 		AF471925866BB5405B9DC20C /* SpotDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FECB090C90D77124D95C98D /* SpotDetail.swift */; };
 		BA1F3D97BD9143F14EF3591F /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B412452C69096EDEC8D3352 /* APIClient.swift */; };
+		BE3065C2E88B81F7E51F269E /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76262F434C32C77E86B39D1 /* DateUtils.swift */; };
 		CC1CF9810BE30B2381A2B032 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E66AB5E2C2707E9D53940 /* SearchView.swift */; };
 		E6ADD3143C9A7645DDF55987 /* SpotDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80184CDDD9FABC0E230ED5E0 /* SpotDetailViewModel.swift */; };
 		E7474ACCFF411FCACB4DBA59 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEFBD0BE5A8CE07D69B8FC58 /* MapView.swift */; };
@@ -35,17 +36,18 @@
 		558E66AB5E2C2707E9D53940 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		5AE49BBEE02C2A3189353D2C /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		5E8539BB921C45FA5F716A3A /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		B2C3D4E5F6A7B8C9D0E1F2A3 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
 		62F08A5D28DD61F80E76F6A6 /* SearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
 		756EE060F0990021B6732E5B /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		80184CDDD9FABC0E230ED5E0 /* SpotDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotDetailViewModel.swift; sourceTree = "<group>"; };
 		836B494A5188651FA7068CD6 /* SpotDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotDetailView.swift; sourceTree = "<group>"; };
 		8F09AB05F8F7AA84A85A6AA8 /* Spot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spot.swift; sourceTree = "<group>"; };
 		A29F5FCFBB14B67529E40BCA /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		A76262F434C32C77E86B39D1 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
 		AEE91A7D46329DF70E741D59 /* TsuriNavi.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TsuriNavi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFB7FBE8885D7CBACFA95BE0 /* TsuriNaviApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TsuriNaviApp.swift; sourceTree = "<group>"; };
 		BEFBD0BE5A8CE07D69B8FC58 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		C064F9B7C8502F46DDB7CA3D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		D33B4A801D8B0CCBF345B571 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DE1567D783FBB519D9DDE112 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		E60CDD3EC5414E16863705A9 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		F343729DD8A26B057A3FE8DE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 		3DD96077A24C894B44BB9370 /* TsuriNavi */ = {
 			isa = PBXGroup;
 			children = (
+				D33B4A801D8B0CCBF345B571 /* Assets.xcassets */,
 				0EAA7717DDDF91F784F3048C /* Info.plist */,
 				F9601125D724C3ECE8365B28 /* App */,
 				25F47C9733F848EB6FE238DB /* Models */,
@@ -111,7 +114,7 @@
 			children = (
 				756EE060F0990021B6732E5B /* AppSettings.swift */,
 				5E8539BB921C45FA5F716A3A /* AppTheme.swift */,
-				B2C3D4E5F6A7B8C9D0E1F2A3 /* DateUtils.swift */,
+				A76262F434C32C77E86B39D1 /* DateUtils.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 			buildConfigurationList = 74234047F34D60DC7172DC5A /* Build configuration list for PBXNativeTarget "TsuriNavi" */;
 			buildPhases = (
 				326857DF359A7B12B67D945A /* Sources */,
+				E31A5C5151986AEEA4A62C5E /* Resources */,
 			);
 			buildRules = (
 			);
@@ -198,6 +202,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		E31A5C5151986AEEA4A62C5E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				230945E6F688D9A13C9F60CE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		326857DF359A7B12B67D945A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -206,7 +221,7 @@
 				BA1F3D97BD9143F14EF3591F /* APIClient.swift in Sources */,
 				96313FE3676B7CD9CBCE38F5 /* AppSettings.swift in Sources */,
 				38D2C3C999F04EDF09FC5A16 /* AppTheme.swift in Sources */,
-				A1B2C3D4E5F6A7B8C9D0E1F2 /* DateUtils.swift in Sources */,
+				BE3065C2E88B81F7E51F269E /* DateUtils.swift in Sources */,
 				43BD8F175214A6BB8FC11D0E /* HomeView.swift in Sources */,
 				96F8BC21FDB5E237239D5867 /* HomeViewModel.swift in Sources */,
 				E7474ACCFF411FCACB4DBA59 /* MapView.swift in Sources */,
