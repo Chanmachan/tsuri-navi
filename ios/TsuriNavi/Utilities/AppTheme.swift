@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - Design System: Apple-Inspired (ADR-0006)
 // Single chromatic accent: Apple Blue (#0071E3).
@@ -7,18 +8,30 @@ import SwiftUI
 extension Color {
     // MARK: - Interactive Accent
     /// Apple Blue — the sole interactive accent color. #0071E3
-    /// Use for buttons, links, selection indicators, toggle tints, and any interactive chrome.
     static let appleBlue = Color(red: 0 / 255, green: 113 / 255, blue: 227 / 255)
 
     // MARK: - Score Label Colors (informational, not interactive)
-    /// Returns the display color for a fishing-condition score label.
-    /// Uses iOS system color values for dark-mode harmony.
+
+    /// Returns the background fill color for a fishing-condition score label.
+    /// Uses UIColor system colors so fills adapt to dark mode and Increased Contrast settings.
     static func scoreColor(for label: String) -> Color {
         switch label {
-        case "◎": return Color(red: 52 / 255,  green: 199 / 255, blue: 89 / 255)   // system green
-        case "○": return Color(red: 0 / 255,   green: 122 / 255, blue: 255 / 255)  // system blue
-        case "△": return Color(red: 255 / 255, green: 159 / 255, blue: 10 / 255)   // system orange
-        default:  return Color(red: 255 / 255, green: 59 / 255,  blue: 48 / 255)   // system red
+        case "◎": return Color(UIColor.systemGreen)
+        case "○": return Color(UIColor.systemBlue)
+        case "△": return Color(UIColor.systemOrange)
+        default:  return Color(UIColor.systemRed)
+        }
+    }
+
+    /// Returns the foreground (text/icon) color for use on top of `scoreColor(for:)`.
+    ///
+    /// `systemGreen` and `systemOrange` are bright fills that require a dark label
+    /// to satisfy the WCAG 3:1 large-text contrast ratio.
+    /// `systemBlue` and `systemRed` are dark enough to pair with white.
+    static func scoreTextColor(for label: String) -> Color {
+        switch label {
+        case "◎", "△": return Color(UIColor.label)  // dark text on bright fill
+        default:        return .white
         }
     }
 }

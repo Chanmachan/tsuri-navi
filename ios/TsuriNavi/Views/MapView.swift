@@ -146,14 +146,11 @@ struct TsuriMapView: View {
             Circle()
                 .fill(color)
                 .frame(width: 34, height: 34)
-            Circle()
-                .stroke(.white, lineWidth: 2)
-                .frame(width: 34, height: 34)
             Text(label)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(Color.scoreTextColor(for: label))
         }
-        .shadow(color: color.opacity(0.4), radius: 4, x: 0, y: 2)
+        .shadow(color: color.opacity(0.35), radius: 4, x: 0, y: 2)
     }
 
     // MARK: - Add spot sheet

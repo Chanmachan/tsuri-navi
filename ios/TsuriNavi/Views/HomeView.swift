@@ -83,24 +83,23 @@ struct SpotRowView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(spot.name)
-                    .font(.system(size: 17, weight: .semibold))
-                    .tracking(-0.3)
+                    .font(.headline)
                     .foregroundStyle(.primary)
 
                 if let score = spot.todayScore {
                     HStack(spacing: 8) {
                         Text("\(score.score)点")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.scoreColor(for: score.label))
                         if let best = score.bestHour {
                             Label("ベスト \(best)時", systemImage: "clock")
-                                .font(.system(size: 13))
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
                 } else {
                     Text("データなし")
-                        .font(.system(size: 13))
+                        .font(.caption)
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -128,6 +127,8 @@ struct HomeDatePicker: View {
     let selectedDate: String
     let onSelect: (String) -> Void
 
+    @ScaledMetric(relativeTo: .body) private var circleSize: CGFloat = 36
+
     private var dates: [String] { DateUtils.next7Days() }
 
     var body: some View {
@@ -138,14 +139,12 @@ struct HomeDatePicker: View {
                     Button { onSelect(date) } label: {
                         VStack(spacing: 4) {
                             Text(dayOfWeek(date))
-                                .font(.system(size: 11, weight: .medium))
-                                .tracking(-0.1)
+                                .font(.caption2.weight(.medium))
                                 .foregroundStyle(isSelected ? Color.appleBlue : .secondary)
-                            Text(dayNumber(date))
-                                .font(.system(size: 17, weight: isSelected ? .semibold : .regular))
-                                .tracking(-0.3)
+                            Text(DateUtils.dayNumber(date))
+                                .font(.body.weight(isSelected ? .semibold : .regular))
                                 .foregroundStyle(isSelected ? .white : .primary)
-                                .frame(width: 36, height: 36)
+                                .frame(width: circleSize, height: circleSize)
                                 .background(
                                     Circle()
                                         .fill(isSelected ? Color.appleBlue : Color.clear)
@@ -163,12 +162,6 @@ struct HomeDatePicker: View {
         }
     }
 
-    private func dayNumber(_ date: String) -> String {
-        let parts = date.split(separator: "-")
-        guard parts.count == 3, let d = Int(parts[2]) else { return "" }
-        return String(d)
-    }
-
     private func dayOfWeek(_ dateStr: String) -> String { DateUtils.dayOfWeek(dateStr) }
 }
 
@@ -179,14 +172,18 @@ struct ScoreBadge: View {
     let score: Int
     var compact: Bool = false
 
+    @ScaledMetric(relativeTo: .title2) private var normalSize: CGFloat = 46
+    @ScaledMetric(relativeTo: .subheadline) private var compactSize: CGFloat = 30
+
     var body: some View {
+        let size = compact ? compactSize : normalSize
         ZStack {
             Circle()
                 .fill(Color.scoreColor(for: label))
             Text(label)
-                .font(.system(size: compact ? 14 : 22, weight: .bold))
-                .foregroundStyle(.white)
+                .font(compact ? .caption.weight(.bold) : .title2.weight(.bold))
+                .foregroundStyle(Color.scoreTextColor(for: label))
         }
-        .frame(width: compact ? 30 : 46, height: compact ? 30 : 46)
+        .frame(width: size, height: size)
     }
 }

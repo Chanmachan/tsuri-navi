@@ -75,6 +75,8 @@ struct WeeklyCalendarSection: View {
     let selectedDate: String
     let onSelect: (String) -> Void
 
+    @ScaledMetric(relativeTo: .body) private var circleSize: CGFloat = 36
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 2) {
@@ -88,10 +90,9 @@ struct WeeklyCalendarSection: View {
                                 .foregroundStyle(isSelected ? Color.appleBlue : .secondary)
 
                             Text(dayNumber(ws.date))
-                                .font(.system(size: 17, weight: isSelected ? .semibold : .regular))
-                                .tracking(-0.3)
+                                .font(.body.weight(isSelected ? .semibold : .regular))
                                 .foregroundStyle(isSelected ? .white : .primary)
-                                .frame(width: 36, height: 36)
+                                .frame(width: circleSize, height: circleSize)
                                 .background(
                                     Circle()
                                         .fill(isSelected ? Color.appleBlue : Color.clear)
@@ -114,12 +115,7 @@ struct WeeklyCalendarSection: View {
         .padding(.vertical, 4)
     }
 
-    private func dayNumber(_ date: String) -> String {
-        let parts = date.split(separator: "-")
-        guard parts.count == 3, let d = Int(parts[2]) else { return "" }
-        return String(d)
-    }
-
+    private func dayNumber(_ date: String) -> String { DateUtils.dayNumber(date) }
     private func dayOfWeek(_ date: String) -> String { DateUtils.dayOfWeek(date) }
 }
 
