@@ -184,11 +184,13 @@ describe("saveCollectedData / getCachedHourly", () => {
 		data.hourly[0].waveHeight = null;
 		data.hourly[0].tideLevel = null;
 		data.hourly[0].tideType = null;
+		data.hourly[0].tideCycle = null;
 		saveCollectedData(data);
 		const row = getCachedHour(1, "2026-04-04", 6);
 		expect(row?.wave_height).toBeNull();
 		expect(row?.tide_level).toBeNull();
 		expect(row?.tide_type).toBeNull();
+		expect(row?.tide_cycle).toBeNull();
 	});
 });
 

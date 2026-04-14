@@ -177,6 +177,21 @@ describe("collectSpotData", () => {
 		expect(result.hourly.every((r) => r.tideCycle === "大潮")).toBe(true);
 	});
 
+	it("maps tideCycle per date for multi-day results", async () => {
+		mockFetchTide.mockImplementation((_portId, date: Date) => {
+			const dateStr = date.toISOString().split("T")[0];
+			const tideType = dateStr === "2026-04-04" ? "大潮" : "中潮";
+			return Promise.resolve({ ...makeTideData(dateStr), tideType });
+		});
+		const result = await collectSpotData(TEST_SPOT, TEST_DATE, 2);
+		const day0 = result.hourly.filter((r) => r.date === "2026-04-04");
+		const day1 = result.hourly.filter((r) => r.date === "2026-04-05");
+		expect(day0).toHaveLength(24);
+		expect(day0.every((r) => r.tideCycle === "大潮")).toBe(true);
+		expect(day1).toHaveLength(24);
+		expect(day1.every((r) => r.tideCycle === "中潮")).toBe(true);
+	});
+
 	it("sets tideCycle to null when port not found", async () => {
 		mockFindPortId.mockReturnValue(undefined);
 		const result = await collectSpotData(TEST_SPOT, TEST_DATE, 1);

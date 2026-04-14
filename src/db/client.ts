@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "data", "tsuri-navi.db");
 
@@ -24,7 +25,7 @@ export function getDb(): Database.Database {
 }
 
 function runMigrations(database: Database.Database): void {
-	const migrationsDir = path.join(path.dirname(new URL(import.meta.url).pathname), "migrations");
+	const migrationsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "migrations");
 
 	const files = fs
 		.readdirSync(migrationsDir)
