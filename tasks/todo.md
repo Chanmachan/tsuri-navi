@@ -121,9 +121,9 @@
 - [x] お気に入りトグル（PATCH /api/spots/[id] action=toggle_favorite）
 
 #### ホーム画面 釣り場削除
-- [ ] iOS: `HomeViewModel.deleteSpot(id:)` を実装（`DELETE /api/spots/[id]` 呼び出し → 再fetch）
-- [ ] iOS: `SpotRowView` に左スワイプ削除アクション（`.swipeActions`）を追加
-- [ ] iOS: 削除前に確認ダイアログ（`.confirmationDialog`）を表示
+- [x] iOS: `HomeViewModel.deleteSpot(id:)` を実装（`DELETE /api/spots/[id]` 呼び出し → 再fetch）
+- [x] iOS: `SpotRowView` に左スワイプ削除アクション（`.swipeActions`）を追加
+- [x] iOS: 削除前に確認ダイアログ（`.confirmationDialog`）を表示
 
 #### ホーム画面 日付切り替え
 - [x] バックエンド: `GET /api/spots` に `?date=YYYY-MM-DD` クエリパラメータ対応（省略時は当日）
