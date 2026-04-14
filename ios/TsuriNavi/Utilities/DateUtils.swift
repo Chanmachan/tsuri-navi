@@ -50,4 +50,10 @@ enum DateUtils {
         guard parts.count == 3 else { return dateStr }
         return "\(parts[1])/\(parts[2])"
     }
+
+    /// Returns the day-of-month number as a non-zero-padded string (e.g. "4", "14").
+    static func dayNumber(_ dateStr: String) -> String {
+        guard let date = isoFormatter.date(from: dateStr) else { return "" }
+        return String(jstCalendar.component(.day, from: date))
+    }
 }

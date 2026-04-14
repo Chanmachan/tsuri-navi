@@ -168,6 +168,19 @@
 - [x] iOS アプリアイコン生成（AppIcon.appiconset: Xcode 15+ 単一 1024×1024px）
 - [x] PWA アイコン更新（manifest.json の `icons` を差し替え）
 
+### Phase 13: Apple HIG UI Refresh
+
+> ADR-0006 に基づき、iOS アプリ全画面の UI をデザインシステムに沿って刷新する。
+
+- [x] ADR-0006 作成（iOS デザインシステム採択）
+- [x] `ios-spec.md` にデザインシステムセクション追加
+- [x] `AppTheme.swift`: ocean パレット廃止 → `appleBlue` 単一アクセント + スコアカラー更新
+- [x] `TsuriNaviApp.swift`: `.tint(.appleBlue)` に変更
+- [x] `HomeView.swift`: `ScoreBadge`（実線円+白文字）、`HomeDatePicker`（iOS カレンダー風円形選択）、`SpotRowView` カラートークン更新
+- [x] `SpotDetailView.swift`: スコアヒーロー刷新、週間カレンダー刷新、グラフ・テーブルカラー更新
+- [x] `SearchView.swift`: tint トークン更新
+- [x] `MapView.swift`: カラートークン更新
+
 ## Blockers
 - tide736.net APIのレート制限の実測
 

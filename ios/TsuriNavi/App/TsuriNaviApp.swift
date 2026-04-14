@@ -48,7 +48,7 @@ struct ContentView: View {
                 .environment(settings)
                 .tabItem { Label("設定", systemImage: "gearshape.fill") }
         }
-        .tint(.oceanPrimary)
+        .tint(.appleBlue)
         .environment(api)
         .environment(settings)
     }

@@ -42,6 +42,7 @@ struct HomeView: View {
                     onSelect: { date in Task { await vm.selectDate(date) } }
                 )
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                .listRowBackground(Color.clear)
             }
 
             Section {
@@ -74,13 +75,13 @@ struct SpotRowView: View {
     let onToggleFavorite: () async -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             ScoreBadge(
                 label: spot.todayScore?.label ?? "-",
                 score: spot.todayScore?.score ?? 0
             )
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(spot.name)
                     .font(.headline)
                     .foregroundStyle(.primary)
@@ -110,7 +111,7 @@ struct SpotRowView: View {
             } label: {
                 Image(systemName: spot.isFavorite == 1 ? "star.fill" : "star")
                     .font(.system(size: 18))
-                    .foregroundStyle(spot.isFavorite == 1 ? Color.yellow : Color(.systemGray3))
+                    .foregroundStyle(spot.isFavorite == 1 ? Color.appleBlue : Color(.systemGray3))
                     .contentTransition(.symbolEffect(.replace))
                     .frame(width: 44, height: 44)
             }
@@ -126,40 +127,41 @@ struct HomeDatePicker: View {
     let selectedDate: String
     let onSelect: (String) -> Void
 
+    @ScaledMetric(relativeTo: .body) private var circleSize: CGFloat = 36
+
     private var dates: [String] { DateUtils.next7Days() }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 2) {
                 ForEach(dates, id: \.self) { date in
+                    let isSelected = date == selectedDate
                     Button { onSelect(date) } label: {
                         VStack(spacing: 4) {
                             Text(dayOfWeek(date))
-                                .font(.system(size: 10))
-                                .foregroundStyle(date == selectedDate ? Color.oceanPrimary : .secondary)
-                            Text(shortDate(date))
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(date == selectedDate ? Color.oceanPrimary : .primary)
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(isSelected ? Color.appleBlue : .secondary)
+                            Text(DateUtils.dayNumber(date))
+                                .font(.body.weight(isSelected ? .semibold : .regular))
+                                .foregroundStyle(isSelected ? .white : .primary)
+                                .frame(width: circleSize, height: circleSize)
+                                .background(
+                                    Circle()
+                                        .fill(isSelected ? Color.appleBlue : Color.clear)
+                                )
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(date == selectedDate ? Color.oceanPrimary.opacity(0.12) : Color.clear)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(date == selectedDate ? Color.oceanPrimary.opacity(0.4) : Color.clear, lineWidth: 1)
-                        )
+                        .frame(minWidth: 44)
+                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .animation(.easeInOut(duration: 0.15), value: isSelected)
                 }
             }
             .padding(.vertical, 2)
         }
     }
 
-    private func shortDate(_ date: String) -> String { DateUtils.shortMonthDay(date) }
     private func dayOfWeek(_ dateStr: String) -> String { DateUtils.dayOfWeek(dateStr) }
 }
 
@@ -170,18 +172,18 @@ struct ScoreBadge: View {
     let score: Int
     var compact: Bool = false
 
-    var scoreColor: Color { .scoreColor(for: label) }
+    @ScaledMetric(relativeTo: .title2) private var normalSize: CGFloat = 46
+    @ScaledMetric(relativeTo: .subheadline) private var compactSize: CGFloat = 30
 
     var body: some View {
+        let size = compact ? compactSize : normalSize
         ZStack {
             Circle()
-                .fill(scoreColor.opacity(0.12))
-            Circle()
-                .stroke(scoreColor.opacity(0.3), lineWidth: compact ? 1 : 1.5)
+                .fill(Color.scoreColor(for: label))
             Text(label)
-                .font(.system(size: compact ? 11 : 20, weight: .bold))
-                .foregroundStyle(scoreColor)
+                .font(compact ? .caption.weight(.bold) : .title2.weight(.bold))
+                .foregroundStyle(Color.scoreTextColor(for: label))
         }
-        .frame(width: compact ? 28 : 44, height: compact ? 28 : 44)
+        .frame(width: size, height: size)
     }
 }

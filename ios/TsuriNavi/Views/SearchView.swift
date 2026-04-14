@@ -79,7 +79,7 @@ struct SearchView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .tint(.oceanPrimary)
+                .tint(.appleBlue)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -94,7 +94,7 @@ struct SearchView: View {
                     in: 10...500,
                     step: 10
                 )
-                .tint(.oceanPrimary)
+                .tint(.appleBlue)
             }
 
             Button(action: { Task { await vm.search() } }) {
@@ -103,7 +103,7 @@ struct SearchView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.oceanPrimary)
+            .tint(.appleBlue)
             .controlSize(.large)
         }
         .padding(16)
@@ -146,14 +146,11 @@ struct SearchView: View {
             Circle()
                 .fill(color)
                 .frame(width: 34, height: 34)
-            Circle()
-                .stroke(.white, lineWidth: 2)
-                .frame(width: 34, height: 34)
             Text(label)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(Color.scoreTextColor(for: label))
         }
-        .shadow(color: color.opacity(0.4), radius: 4, x: 0, y: 2)
+        .shadow(color: color.opacity(0.35), radius: 4, x: 0, y: 2)
     }
 
     private func fitCamera(to results: [SearchResult]) -> MapCameraPosition {
