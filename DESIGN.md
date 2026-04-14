@@ -26,9 +26,9 @@ The color story is starkly binary. Product sections alternate between pure black
 - **Near Black** (`#1d1d1f`): Primary text on light backgrounds, dark button fills. Slightly warmer than pure black for comfortable reading.
 
 ### Interactive
-- **Apple Blue** (`#0071e3`): `--sk-focus-color`, primary CTA backgrounds, focus rings. The ONLY chromatic color in the interface.
-- **Link Blue** (`#0066cc`): `--sk-body-link-color`, inline text links. Slightly darker than Apple Blue for text-level readability.
-- **Bright Blue** (`#2997ff`): Links on dark backgrounds. Higher luminance for contrast on black sections.
+- **Apple Blue** (`#0071e3`): `--sk-focus-color`, primary CTA backgrounds, focus rings. The ONLY chromatic interactive token in the interface. Used for all interactive elements on iOS (see ADR-0006).
+- **Link Blue** (`#0066cc`): `--sk-body-link-color` — **web surfaces only**. Inline text links on light backgrounds. Not used in the iOS app; iOS uses Apple Blue exclusively.
+- **Bright Blue** (`#2997ff`): **web surfaces only**. Links on dark web backgrounds for luminance contrast. Not used in the iOS app.
 
 ### Text
 - **White** (`#ffffff`): Text on dark backgrounds, button text on blue/dark CTAs.
@@ -140,7 +140,7 @@ The color story is starkly binary. Product sections alternate between pure black
 ### Cards & Containers
 - Background: `#f5f5f7` (light) or `#272729`-`#2a2a2d` (dark)
 - Border: none (borders are rare in Apple's system)
-- Radius: 5px-8px
+- Radius: 5px–8px (web); **14px on iOS** per ADR-0006 — matches native HIG card convention
 - Shadow: `rgba(0, 0, 0, 0.22) 3px 5px 30px 0px` for elevated product cards
 - Content: centered, generous padding
 - Hover: no standard hover state — cards are static, links within them are interactive
@@ -249,6 +249,7 @@ The color story is starkly binary. Product sections alternate between pure black
 ## 8. Responsive Behavior
 
 ### Breakpoints
+
 | Name | Width | Key Changes |
 |------|-------|-------------|
 | Small Mobile | <360px | Minimum supported, single column |
