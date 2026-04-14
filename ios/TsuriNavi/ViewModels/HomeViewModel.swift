@@ -56,6 +56,7 @@ final class HomeViewModel {
             try await api.deleteSpot(id: id)
         } catch {
             self.error = error.localizedDescription
+            return
         }
         await load()
     }
