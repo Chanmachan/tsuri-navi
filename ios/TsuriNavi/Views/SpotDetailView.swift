@@ -85,7 +85,7 @@ struct WeeklyCalendarSection: View {
                     Button { onSelect(ws.date) } label: {
                         VStack(spacing: 4) {
                             Text(dayOfWeek(ws.date))
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.caption2.weight(.medium))
                                 .tracking(-0.1)
                                 .foregroundStyle(isSelected ? Color.appleBlue : .secondary)
 
@@ -99,7 +99,7 @@ struct WeeklyCalendarSection: View {
                                 )
 
                             Text(ws.label)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(Color.scoreColor(for: ws.label))
                         }
                         .frame(minWidth: 44)
@@ -124,6 +124,9 @@ struct WeeklyCalendarSection: View {
 struct ScoreHeroSection: View {
     let daily: DailyScore
 
+    @ScaledMetric(relativeTo: .largeTitle) private var heroFontSize: CGFloat = 80
+    @ScaledMetric(relativeTo: .title) private var scoreFontSize: CGFloat = 34
+
     var scoreColor: Color { Color.scoreColor(for: daily.label) }
 
     var body: some View {
@@ -131,18 +134,18 @@ struct ScoreHeroSection: View {
             // Hero
             VStack(spacing: 10) {
                 Text(daily.label)
-                    .font(.system(size: 80, weight: .bold))
+                    .font(.system(size: heroFontSize, weight: .bold))
                     .foregroundStyle(scoreColor)
 
                 HStack(spacing: 20) {
                     Text("\(daily.score)点")
-                        .font(.system(size: 34, weight: .semibold))
+                        .font(.system(size: scoreFontSize, weight: .semibold))
                         .tracking(-0.5)
                         .foregroundStyle(.primary)
 
                     if let best = daily.bestHour {
                         Label("\(best):00 ベスト", systemImage: "clock.fill")
-                            .font(.system(size: 15))
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -178,7 +181,7 @@ struct BreakdownView: View {
                 if let val {
                     HStack(spacing: 10) {
                         Text(name)
-                            .font(.system(size: 12))
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                             .frame(width: 40, alignment: .leading)
                         GeometryReader { geo in
@@ -192,7 +195,7 @@ struct BreakdownView: View {
                         }
                         .frame(height: 6)
                         Text(String(format: "%.0f", val))
-                            .font(.system(size: 11).monospacedDigit())
+                            .font(.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                             .frame(width: 24, alignment: .trailing)
                     }
@@ -210,7 +213,7 @@ struct HourlyScoreSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("時間帯スコア", systemImage: "chart.bar.fill")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .tracking(-0.2)
                 .foregroundStyle(.primary)
 
@@ -227,7 +230,7 @@ struct HourlyScoreSection: View {
                                 .fill(s.bestTimeFlag == 1
                                       ? barColor(s.score)
                                       : barColor(s.score).opacity(0.45))
-                                .frame(width: 22, height: max(4, CGFloat(s.score) * 0.72))
+                                .frame(width: 22, height: max(4, min(CGFloat(s.score), 100) * 0.72))
                             Text("\(s.hour)")
                                 .font(.system(size: 9))
                                 .foregroundStyle(.secondary)
@@ -259,7 +262,7 @@ struct TideChartSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("タイドグラフ", systemImage: "water.waves")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .tracking(-0.2)
                 .foregroundStyle(.primary)
 
@@ -342,7 +345,7 @@ struct WeatherTableSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("天気・風・波", systemImage: "wind")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .tracking(-0.2)
                 .foregroundStyle(.primary)
 
@@ -387,7 +390,7 @@ struct WeatherTableSection: View {
 
     private func cell(_ text: String, width: CGFloat, isHeader: Bool = false) -> some View {
         Text(text)
-            .font(isHeader ? .system(size: 12, weight: .semibold) : .system(size: 12))
+            .font(isHeader ? .caption.weight(.semibold) : .caption)
             .foregroundStyle(isHeader ? .primary : .secondary)
             .frame(width: width, alignment: .center)
             .padding(.vertical, 7)
@@ -402,7 +405,7 @@ struct FishSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("今の時期に狙える魚", systemImage: "fish.fill")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .tracking(-0.2)
                 .foregroundStyle(.primary)
 
@@ -420,13 +423,13 @@ struct FishSection: View {
 
                         VStack(alignment: .leading, spacing: 3) {
                             Text(f.fish)
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.subheadline.weight(.semibold))
                                 .tracking(-0.2)
                             Text("仕掛: \(f.method)")
-                                .font(.system(size: 13))
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                             Text("餌: \(f.bait)")
-                                .font(.system(size: 13))
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
                         Spacer(minLength: 0)
