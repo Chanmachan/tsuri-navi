@@ -244,7 +244,7 @@ The color story is starkly binary. Product sections alternate between pure black
 - Don't add textures, patterns, or gradients to backgrounds — solid colors only
 - Don't make the navigation opaque — the glass blur effect is essential to the Apple UI identity
 - Don't center-align body text — Apple body copy is left-aligned; only headlines center
-- Don't use rounded corners larger than 12px on rectangular elements (980px is for pills only)
+- Don't use rounded corners larger than 12px on rectangular web elements (980px is for pills only); iOS cards use 14px per ADR-0006
 
 ## 8. Responsive Behavior
 
@@ -291,8 +291,8 @@ The color story is starkly binary. Product sections alternate between pure black
 - Heading text (light): `#1d1d1f`
 - Heading text (dark): `#ffffff`
 - Body text: `rgba(0, 0, 0, 0.8)` on light, `#ffffff` on dark
-- Link (light bg): `#0066cc`
-- Link (dark bg): `#2997ff`
+- Link (light bg, web-only): `#0066cc`
+- Link (dark bg, web-only): `#2997ff`
 - Focus ring: `#0071e3`
 - Card shadow: `rgba(0, 0, 0, 0.22) 3px 5px 30px 0px`
 
@@ -301,7 +301,7 @@ The color story is starkly binary. Product sections alternate between pure black
 - "Design a product card: #f5f5f7 background, 8px border-radius, no border, no shadow. Product image top 60% of card on solid background. Title at 28px SF Pro Display weight 400, letter-spacing 0.196px, line-height 1.14. Description at 14px SF Pro Text weight 400, color rgba(0,0,0,0.8). 'Learn more' and 'Shop' links in #0066cc at 14px."
 - "Build the Apple navigation: sticky, 48px height, background rgba(0,0,0,0.8) with backdrop-filter: saturate(180%) blur(20px). Links at 12px SF Pro Text weight 400, white text. Apple logo left, links centered, search and bag icons right."
 - "Create an alternating section layout: first section black bg with white text and centered product image, second section #f5f5f7 bg with #1d1d1f text. Each section near full-viewport height with 56px headline and two pill CTAs below."
-- "Design a 'Learn more' link: text #0066cc on light bg or #2997ff on dark bg, 14px SF Pro Text, underline on hover. After the text, include a right-arrow chevron character (>). Wrap in a container with 980px border-radius for pill shape when used as a standalone CTA."
+- "Design a 'Learn more' link (web-only): text #0066cc on light bg or #2997ff on dark bg, 14px SF Pro Text, underline on hover. After the text, include a right-arrow chevron character (>). Wrap in a container with 980px border-radius for pill shape when used as a standalone CTA. For iOS, use Apple Blue `#0071e3`."
 
 ### Iteration Guide
 1. Every interactive element gets Apple Blue (`#0071e3`) — no other accent colors
