@@ -29,6 +29,7 @@ export interface HourlyCollectedData {
 	// Tide
 	tideLevel: number | null;
 	tideType: "満潮" | "干潮" | null;
+	tideCycle: string | null; // daily tide cycle e.g. "大潮"
 	// Astronomical
 	sunrise: string | null; // "HH:MM"
 	sunset: string | null; // "HH:MM"
@@ -190,6 +191,10 @@ export async function collectSpotData(
 	}
 
 	// ── Assemble hourly rows ────────────────────────────────────────────────
+	const tideCycleByDate = new Map<string, string>(
+		dailyTideTypes.map(({ date, tideType }) => [date, tideType]),
+	);
+
 	const hourly: HourlyCollectedData[] = [];
 
 	for (let d = 0; d < days; d++) {
@@ -222,6 +227,7 @@ export async function collectSpotData(
 				swellHeight: m?.swellHeight ?? null,
 				tideLevel: tideByDateHour.get(tideKey) ?? null,
 				tideType: tidePeakByDateHour.get(tideKey) ?? null,
+				tideCycle: tideCycleByDate.get(dateStr) ?? null,
 				sunrise: sunTimes.sunrise,
 				sunset: sunTimes.sunset,
 				moonAge,

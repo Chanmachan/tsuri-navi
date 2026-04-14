@@ -20,6 +20,7 @@ const BASE_ROW: Omit<CachedHourlyRow, "hour"> = {
 	swell_height: null,
 	tide_level: 100,
 	tide_type: null,
+	tide_cycle: null,
 	sunrise: "05:30",
 	sunset: "18:00",
 	moon_age: 10,
@@ -91,7 +92,7 @@ describe("calculateHourlyScores", () => {
 	it("scores mazume hour (sunrise±1) higher than non-mazume hour under same conditions", () => {
 		// sunrise=05:30 → hour 5 is mazume, hour 11 is not
 		const rows = [
-			makeRow(5),  // mazume (1h from sunrise)
+			makeRow(5), // mazume (1h from sunrise)
 			makeRow(11), // non-mazume
 		];
 		const [mazumeScore, normalScore] = calculateHourlyScores(rows, "大潮");
@@ -103,10 +104,7 @@ describe("calculateHourlyScores", () => {
 	it("uses tide extreme row for hoursToNearestExtreme calculation", () => {
 		// Row at hour 6 is the tide extreme (h=0 → 潮止まり → tideMovement=0);
 		// hour 7 is 1h away (h=1 → 前後1時間 = best window).
-		const rows = [
-			makeRow(6, { tide_type: "満潮" }),
-			makeRow(7),
-		];
+		const rows = [makeRow(6, { tide_type: "満潮" }), makeRow(7)];
 		const result = calculateHourlyScores(rows, "大潮");
 		expect(result).toHaveLength(2);
 		// h=0 (exact extreme = 潮止まり) scores lower than h=1 (前後1時間)

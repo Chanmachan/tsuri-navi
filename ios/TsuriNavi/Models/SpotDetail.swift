@@ -49,6 +49,7 @@ struct HourlyWeather: Codable, Identifiable {
     let waveHeight: Double?
     let tideLevel: Double?
     let tideType: String?
+    let tideCycle: String?
     let weatherCode: Int?
     let precipitation: Double?
     let pressure: Double?
@@ -62,6 +63,7 @@ struct HourlyWeather: Codable, Identifiable {
         case waveHeight   = "wave_height"
         case tideLevel    = "tide_level"
         case tideType     = "tide_type"
+        case tideCycle    = "tide_cycle"
         case weatherCode  = "weather_code"
     }
 }

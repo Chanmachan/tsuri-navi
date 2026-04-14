@@ -23,7 +23,7 @@ export function saveCollectedData(data: CollectedSpotData): void {
       weather_code, temperature, wind_speed, wind_direction,
       precipitation, pressure,
       wave_height, swell_height,
-      tide_level, tide_type,
+      tide_level, tide_type, tide_cycle,
       sunrise, sunset, moon_age,
       fetched_at
     ) VALUES (
@@ -31,7 +31,7 @@ export function saveCollectedData(data: CollectedSpotData): void {
       @weather_code, @temperature, @wind_speed, @wind_direction,
       @precipitation, @pressure,
       @wave_height, @swell_height,
-      @tide_level, @tide_type,
+      @tide_level, @tide_type, @tide_cycle,
       @sunrise, @sunset, @moon_age,
       datetime('now')
     )
@@ -53,6 +53,7 @@ export function saveCollectedData(data: CollectedSpotData): void {
 				swell_height: row.swellHeight,
 				tide_level: row.tideLevel,
 				tide_type: row.tideType,
+				tide_cycle: row.tideCycle,
 				sunrise: row.sunrise,
 				sunset: row.sunset,
 				moon_age: row.moonAge,
@@ -81,6 +82,7 @@ export interface CachedHourlyRow {
 	swell_height: number | null;
 	tide_level: number | null;
 	tide_type: "満潮" | "干潮" | null;
+	tide_cycle: string | null;
 	sunrise: string | null;
 	sunset: string | null;
 	moon_age: number | null;
@@ -88,15 +90,10 @@ export interface CachedHourlyRow {
 }
 
 /** Get all cached hourly rows for a spot on a given date. */
-export function getCachedHourly(
-	spotId: number,
-	date: string,
-): CachedHourlyRow[] {
+export function getCachedHourly(spotId: number, date: string): CachedHourlyRow[] {
 	const db = getDb();
 	return db
-		.prepare(
-			`SELECT * FROM weather_cache WHERE spot_id = ? AND date = ? ORDER BY hour`,
-		)
+		.prepare(`SELECT * FROM weather_cache WHERE spot_id = ? AND date = ? ORDER BY hour`)
 		.all(spotId, date) as CachedHourlyRow[];
 }
 
@@ -108,9 +105,7 @@ export function getCachedHour(
 ): CachedHourlyRow | undefined {
 	const db = getDb();
 	return db
-		.prepare(
-			`SELECT * FROM weather_cache WHERE spot_id = ? AND date = ? AND hour = ?`,
-		)
+		.prepare(`SELECT * FROM weather_cache WHERE spot_id = ? AND date = ? AND hour = ?`)
 		.get(spotId, date, hour) as CachedHourlyRow | undefined;
 }
 
@@ -118,11 +113,7 @@ export function getCachedHour(
  * Check if cached data exists and is fresh enough.
  * Returns true if any row for the spot+date was fetched within maxAgeHours.
  */
-export function isCacheFresh(
-	spotId: number,
-	date: string,
-	maxAgeHours = 6,
-): boolean {
+export function isCacheFresh(spotId: number, date: string, maxAgeHours = 6): boolean {
 	const db = getDb();
 	const row = db
 		.prepare(

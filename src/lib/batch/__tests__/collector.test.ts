@@ -44,9 +44,7 @@ const TEST_DATE = new Date("2026-04-04T00:00:00Z");
 function makeWeatherForecast(days = 1): WeatherForecast {
 	const hourly = [];
 	for (let d = 0; d < days; d++) {
-		const dateStr = new Date(TEST_DATE.getTime() + d * 86400000)
-			.toISOString()
-			.split("T")[0];
+		const dateStr = new Date(TEST_DATE.getTime() + d * 86400000).toISOString().split("T")[0];
 		for (let h = 0; h < 24; h++) {
 			hourly.push({
 				time: `${dateStr}T${String(h).padStart(2, "0")}:00`,
@@ -65,9 +63,7 @@ function makeWeatherForecast(days = 1): WeatherForecast {
 function makeMarineForecast(days = 1): MarineForecast {
 	const hourly = [];
 	for (let d = 0; d < days; d++) {
-		const dateStr = new Date(TEST_DATE.getTime() + d * 86400000)
-			.toISOString()
-			.split("T")[0];
+		const dateStr = new Date(TEST_DATE.getTime() + d * 86400000).toISOString().split("T")[0];
 		for (let h = 0; h < 24; h++) {
 			hourly.push({
 				time: `${dateStr}T${String(h).padStart(2, "0")}:00`,
@@ -174,6 +170,17 @@ describe("collectSpotData", () => {
 		const result = await collectSpotData(TEST_SPOT, TEST_DATE, 2);
 		expect(result.dailyTideTypes).toHaveLength(2);
 		expect(result.dailyTideTypes[0].tideType).toBe("大潮");
+	});
+
+	it("sets tideCycle on every hourly row from dailyTideTypes", async () => {
+		const result = await collectSpotData(TEST_SPOT, TEST_DATE, 1);
+		expect(result.hourly.every((r) => r.tideCycle === "大潮")).toBe(true);
+	});
+
+	it("sets tideCycle to null when port not found", async () => {
+		mockFindPortId.mockReturnValue(undefined);
+		const result = await collectSpotData(TEST_SPOT, TEST_DATE, 1);
+		expect(result.hourly[0].tideCycle).toBeNull();
 	});
 
 	it("records error and returns empty tide data when port not found", async () => {

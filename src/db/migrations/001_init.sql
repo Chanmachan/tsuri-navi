@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS weather_cache (
   swell_height REAL,
   tide_level REAL,
   tide_type TEXT CHECK (tide_type IN ('満潮', '干潮', NULL)),
+  tide_cycle TEXT,
   sunrise TEXT,
   sunset TEXT,
   moon_age REAL,

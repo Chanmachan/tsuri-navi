@@ -370,7 +370,7 @@ struct WeatherTableSection: View {
             cell(w.windSpeed.map    { String(format: "%.1fm/s", $0) } ?? "-", width: 60)
             cell(w.waveHeight.map  { String(format: "%.1fm", $0) } ?? "-", width: 54)
             cell(w.tideLevel.map   { "\(Int($0))cm" } ?? "-", width: 54)
-            cell(w.tideType ?? "-", width: 64)
+            cell(w.tideCycle ?? "-", width: 64)
         }
         .background(isEven ? Color(.systemGray6) : Color.clear)
     }

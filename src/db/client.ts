@@ -2,8 +2,7 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 
-const DB_PATH =
-	process.env.DB_PATH ?? path.join(process.cwd(), "data", "tsuri-navi.db");
+const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "data", "tsuri-navi.db");
 
 let db: Database.Database | null = null;
 
@@ -25,10 +24,7 @@ export function getDb(): Database.Database {
 }
 
 function runMigrations(database: Database.Database): void {
-	const migrationsDir = path.join(
-		path.dirname(new URL(import.meta.url).pathname),
-		"migrations",
-	);
+	const migrationsDir = path.join(path.dirname(new URL(import.meta.url).pathname), "migrations");
 
 	const files = fs
 		.readdirSync(migrationsDir)
@@ -37,7 +33,14 @@ function runMigrations(database: Database.Database): void {
 
 	for (const file of files) {
 		const sql = fs.readFileSync(path.join(migrationsDir, file), "utf-8");
-		database.exec(sql);
+		try {
+			database.exec(sql);
+		} catch (e) {
+			// ALTER TABLE ADD COLUMN is not idempotent in SQLite; ignore duplicate column errors
+			if (!(e instanceof Error) || !e.message.includes("duplicate column name")) {
+				throw e;
+			}
+		}
 	}
 }
 

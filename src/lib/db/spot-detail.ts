@@ -29,6 +29,7 @@ export interface HourlyWeatherRow {
 	swell_height: number | null;
 	tide_level: number | null;
 	tide_type: "満潮" | "干潮" | null;
+	tide_cycle: string | null;
 	sunrise: string | null;
 	sunset: string | null;
 }
@@ -79,7 +80,7 @@ export function getHourlyWeather(spotId: number, date: string): HourlyWeatherRow
 			`SELECT
         hour, weather_code, temperature, wind_speed, wind_direction,
         precipitation, pressure, wave_height, swell_height,
-        tide_level, tide_type, sunrise, sunset
+        tide_level, tide_type, tide_cycle, sunrise, sunset
        FROM weather_cache
        WHERE spot_id = ? AND date = ?
        ORDER BY hour`,
