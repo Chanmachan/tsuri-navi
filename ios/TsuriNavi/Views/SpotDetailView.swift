@@ -12,7 +12,7 @@ struct SpotDetailView: View {
     var body: some View {
         ScrollView {
             if let vm {
-                if vm.isLoading {
+                if vm.isLoading && vm.detail == nil {
                     ProgressView().padding(.top, 60)
                 } else if let detail = vm.detail {
                     VStack(spacing: 12) {
@@ -48,6 +48,8 @@ struct SpotDetailView: View {
                         }
                     }
                     .padding(.vertical, 12)
+                    .opacity(vm.isLoading ? 0.6 : 1.0)
+                    .animation(.easeInOut(duration: 0.15), value: vm.isLoading)
                 } else if let error = vm.error {
                     ContentUnavailableView(error, systemImage: "wifi.slash")
                         .padding(.top, 60)
