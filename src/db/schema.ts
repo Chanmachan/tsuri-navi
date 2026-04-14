@@ -42,6 +42,7 @@ export interface WeatherCache {
 	swell_height: number | null;
 	tide_level: number | null;
 	tide_type: TideType;
+	tide_cycle: string | null;
 	sunrise: string | null;
 	sunset: string | null;
 	moon_age: number | null;

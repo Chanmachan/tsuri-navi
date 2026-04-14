@@ -1,7 +1,13 @@
 import Database from "better-sqlite3";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { CollectedSpotData } from "../../batch/collector";
-import { clearCache, getCachedHour, getCachedHourly, isCacheFresh, saveCollectedData } from "../cache";
+import {
+	clearCache,
+	getCachedHour,
+	getCachedHourly,
+	isCacheFresh,
+	saveCollectedData,
+} from "../cache";
 
 // ---------------------------------------------------------------------------
 // Mock the db client to use an in-memory database for tests
@@ -44,6 +50,7 @@ vi.mock("../../../db/client", () => {
             swell_height REAL,
             tide_level REAL,
             tide_type TEXT,
+            tide_cycle TEXT,
             sunrise TEXT,
             sunset TEXT,
             moon_age REAL,
@@ -68,9 +75,7 @@ vi.mock("../../../db/client", () => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeCollectedData(
-	overrides: Partial<CollectedSpotData> = {},
-): CollectedSpotData {
+function makeCollectedData(overrides: Partial<CollectedSpotData> = {}): CollectedSpotData {
 	return {
 		spotId: 1,
 		hourly: [
@@ -87,6 +92,7 @@ function makeCollectedData(
 				swellHeight: 0.5,
 				tideLevel: 150,
 				tideType: "満潮",
+				tideCycle: "大潮",
 				sunrise: "05:20",
 				sunset: "18:05",
 				moonAge: 16.3,
@@ -104,6 +110,7 @@ function makeCollectedData(
 				swellHeight: 0.7,
 				tideLevel: 30,
 				tideType: "干潮",
+				tideCycle: "大潮",
 				sunrise: "05:20",
 				sunset: "18:05",
 				moonAge: 16.3,
@@ -154,6 +161,7 @@ describe("saveCollectedData / getCachedHourly", () => {
 		const row = getCachedHour(1, "2026-04-04", 6);
 		expect(row?.tide_level).toBe(150);
 		expect(row?.tide_type).toBe("満潮");
+		expect(row?.tide_cycle).toBe("大潮");
 	});
 
 	it("persists astronomical fields correctly", () => {
@@ -176,11 +184,13 @@ describe("saveCollectedData / getCachedHourly", () => {
 		data.hourly[0].waveHeight = null;
 		data.hourly[0].tideLevel = null;
 		data.hourly[0].tideType = null;
+		data.hourly[0].tideCycle = null;
 		saveCollectedData(data);
 		const row = getCachedHour(1, "2026-04-04", 6);
 		expect(row?.wave_height).toBeNull();
 		expect(row?.tide_level).toBeNull();
 		expect(row?.tide_type).toBeNull();
+		expect(row?.tide_cycle).toBeNull();
 	});
 });
 
