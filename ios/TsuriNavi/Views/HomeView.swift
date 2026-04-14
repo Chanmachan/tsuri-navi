@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(HomeViewModel.self) private var vm
+    @State private var spotToDelete: SpotWithScore?
 
     var body: some View {
         NavigationStack {
@@ -19,6 +20,18 @@ struct HomeView: View {
             .refreshable { await vm.load() }
         }
         .task { await vm.load() }
+        .confirmationDialog(
+            "\(spotToDelete?.name ?? "")を削除しますか？",
+            isPresented: Binding(get: { spotToDelete != nil }, set: { if !$0 { spotToDelete = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button("削除", role: .destructive) {
+                if let spot = spotToDelete {
+                    spotToDelete = nil
+                    Task { await vm.deleteSpot(id: spot.id) }
+                }
+            }
+        }
     }
 
     private var spotList: some View {
@@ -39,6 +52,13 @@ struct HomeView: View {
                         initialDate: vm.selectedDate
                     )) {
                         SpotRowView(spot: spot, onToggleFavorite: { await vm.toggleFavorite(spot: spot) })
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            spotToDelete = spot
+                        } label: {
+                            Label("削除", systemImage: "trash")
+                        }
                     }
                 }
             }

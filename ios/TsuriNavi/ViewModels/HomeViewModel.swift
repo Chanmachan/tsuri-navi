@@ -50,5 +50,15 @@ final class HomeViewModel {
         }
         await load()
     }
+
+    func deleteSpot(id: Int) async {
+        do {
+            try await api.deleteSpot(id: id)
+        } catch {
+            self.error = error.localizedDescription
+            return
+        }
+        await load()
+    }
 }
 
