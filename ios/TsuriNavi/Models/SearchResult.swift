@@ -1,6 +1,6 @@
 import Foundation
 
-struct SearchResult: Codable, Identifiable {
+struct SearchResult: Codable, Identifiable, Equatable {
     let id: Int
     let name: String
     let latitude: Double
