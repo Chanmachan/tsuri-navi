@@ -58,8 +58,8 @@ struct TsuriMapView: View {
                         Annotation("新しい釣り場", coordinate: coord) {
                             Image(systemName: "mappin.circle.fill")
                                 .font(.system(size: 32))
-                                .foregroundStyle(Color.oceanPrimary)
-                                .shadow(color: Color.oceanPrimary.opacity(0.4), radius: 4, x: 0, y: 2)
+                                .foregroundStyle(Color.appleBlue)
+                                .shadow(color: Color.appleBlue.opacity(0.3), radius: 4, x: 0, y: 2)
                         }
                     }
                 }

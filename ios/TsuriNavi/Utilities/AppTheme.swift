@@ -1,23 +1,24 @@
 import SwiftUI
 
-// MARK: - Ocean Design Tokens
-// Color palette inspired by calm sea fishing environments.
+// MARK: - Design System: Apple-Inspired (ADR-0006)
+// Single chromatic accent: Apple Blue (#0071E3).
+// Score label colors are semantic/informational (data) and remain polychromatic.
 
 extension Color {
-    /// Primary interactive color – calm ocean cyan (#0891B2)
-    static let oceanPrimary = Color(red: 8 / 255, green: 145 / 255, blue: 178 / 255)
-    /// Deep ocean – used for prominent text (#164E63)
-    static let oceanDeep    = Color(red: 22 / 255, green: 78 / 255,  blue: 99 / 255)
-    /// Seafoam accent – emerald green (#059669)
-    static let oceanAccent  = Color(red: 5 / 255,  green: 150 / 255, blue: 105 / 255)
+    // MARK: - Interactive Accent
+    /// Apple Blue — the sole interactive accent color. #0071E3
+    /// Use for buttons, links, selection indicators, toggle tints, and any interactive chrome.
+    static let appleBlue = Color(red: 0 / 255, green: 113 / 255, blue: 227 / 255)
 
-    /// Returns a semantic color for a fishing-condition score label.
+    // MARK: - Score Label Colors (informational, not interactive)
+    /// Returns the display color for a fishing-condition score label.
+    /// Uses iOS system color values for dark-mode harmony.
     static func scoreColor(for label: String) -> Color {
         switch label {
-        case "◎": return Color(red: 5 / 255,   green: 150 / 255, blue: 105 / 255)  // emerald-600
-        case "○": return Color(red: 2 / 255,   green: 132 / 255, blue: 199 / 255)  // sky-600
-        case "△": return Color(red: 217 / 255, green: 119 / 255, blue: 6 / 255)    // amber-600
-        default:  return Color(red: 239 / 255, green: 68 / 255,  blue: 68 / 255)   // red-500
+        case "◎": return Color(red: 52 / 255,  green: 199 / 255, blue: 89 / 255)   // system green
+        case "○": return Color(red: 0 / 255,   green: 122 / 255, blue: 255 / 255)  // system blue
+        case "△": return Color(red: 255 / 255, green: 159 / 255, blue: 10 / 255)   // system orange
+        default:  return Color(red: 255 / 255, green: 59 / 255,  blue: 48 / 255)   // system red
         }
     }
 }

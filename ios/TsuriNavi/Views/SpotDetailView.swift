@@ -15,7 +15,7 @@ struct SpotDetailView: View {
                 if vm.isLoading {
                     ProgressView().padding(.top, 60)
                 } else if let detail = vm.detail {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 12) {
                         WeeklyCalendarSection(
                             scores: detail.weeklyScores,
                             selectedDate: vm.selectedDate,
@@ -23,31 +23,31 @@ struct SpotDetailView: View {
                         )
 
                         if let daily = detail.dailyScore {
-                            ScoreHeaderSection(daily: daily)
-                                .padding(.horizontal)
+                            ScoreHeroSection(daily: daily)
+                                .padding(.horizontal, 16)
                         }
 
                         if !detail.hourlyScores.isEmpty {
                             HourlyScoreSection(scores: detail.hourlyScores)
-                                .padding(.horizontal)
+                                .padding(.horizontal, 16)
                         }
 
                         if !detail.weather.isEmpty {
                             TideChartSection(weather: detail.weather)
-                                .padding(.horizontal)
+                                .padding(.horizontal, 16)
                         }
 
                         if !detail.weather.isEmpty {
                             WeatherTableSection(weather: detail.weather)
-                                .padding(.horizontal)
+                                .padding(.horizontal, 16)
                         }
 
                         if !detail.fish.isEmpty {
                             FishSection(fish: detail.fish)
-                                .padding(.horizontal)
+                                .padding(.horizontal, 16)
                         }
                     }
-                    .padding(.vertical, 16)
+                    .padding(.vertical, 12)
                 } else if let error = vm.error {
                     ContentUnavailableView(error, systemImage: "wifi.slash")
                         .padding(.top, 60)
@@ -77,87 +77,91 @@ struct WeeklyCalendarSection: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
+            HStack(spacing: 2) {
                 ForEach(scores) { ws in
+                    let isSelected = ws.date == selectedDate
                     Button { onSelect(ws.date) } label: {
-                        VStack(spacing: 6) {
-                            Text(shortDate(ws.date))
-                                .font(.caption2)
-                                .foregroundStyle(
-                                    ws.date == selectedDate ? Color.oceanPrimary : Color.secondary
+                        VStack(spacing: 4) {
+                            Text(dayOfWeek(ws.date))
+                                .font(.system(size: 11, weight: .medium))
+                                .tracking(-0.1)
+                                .foregroundStyle(isSelected ? Color.appleBlue : .secondary)
+
+                            Text(dayNumber(ws.date))
+                                .font(.system(size: 17, weight: isSelected ? .semibold : .regular))
+                                .tracking(-0.3)
+                                .foregroundStyle(isSelected ? .white : .primary)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    Circle()
+                                        .fill(isSelected ? Color.appleBlue : Color.clear)
                                 )
-                            ScoreBadge(label: ws.label, score: ws.score, compact: true)
+
+                            Text(ws.label)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(Color.scoreColor(for: ws.label))
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 8)
-                        .background(
-                            ws.date == selectedDate
-                                ? Color.oceanPrimary.opacity(0.1)
-                                : Color.clear
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay {
-                            if ws.date == selectedDate {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.oceanPrimary.opacity(0.3), lineWidth: 1)
-                            }
-                        }
+                        .frame(minWidth: 44)
+                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .animation(.easeInOut(duration: 0.15), value: isSelected)
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 16)
         }
+        .padding(.vertical, 4)
     }
 
-    private func shortDate(_ date: String) -> String {
+    private func dayNumber(_ date: String) -> String {
         let parts = date.split(separator: "-")
-        guard parts.count == 3 else { return date }
-        return "\(parts[1])/\(parts[2])"
+        guard parts.count == 3, let d = Int(parts[2]) else { return "" }
+        return String(d)
     }
+
+    private func dayOfWeek(_ date: String) -> String { DateUtils.dayOfWeek(date) }
 }
 
-// MARK: - Score Header
+// MARK: - Score Hero
 
-struct ScoreHeaderSection: View {
+struct ScoreHeroSection: View {
     let daily: DailyScore
 
     var scoreColor: Color { Color.scoreColor(for: daily.label) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .center, spacing: 20) {
-                ZStack {
-                    Circle()
-                        .fill(scoreColor.opacity(0.1))
-                    Text(daily.label)
-                        .font(.system(size: 52, weight: .bold))
-                        .foregroundStyle(scoreColor)
-                }
-                .frame(width: 88, height: 88)
+        VStack(spacing: 0) {
+            // Hero
+            VStack(spacing: 10) {
+                Text(daily.label)
+                    .font(.system(size: 80, weight: .bold))
+                    .foregroundStyle(scoreColor)
 
-                VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 20) {
                     Text("\(daily.score)点")
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
-                        .foregroundStyle(scoreColor)
+                        .font(.system(size: 34, weight: .semibold))
+                        .tracking(-0.5)
+                        .foregroundStyle(.primary)
+
                     if let best = daily.bestHour {
-                        Label("ベスト \(best):00", systemImage: "clock.fill")
-                            .font(.subheadline)
+                        Label("\(best):00 ベスト", systemImage: "clock.fill")
+                            .font(.system(size: 15))
                             .foregroundStyle(.secondary)
                     }
                 }
-
-                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 28)
 
             if let b = daily.breakdown {
                 Divider()
                 BreakdownView(breakdown: b)
+                    .padding(16)
             }
         }
-        .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
 
@@ -173,26 +177,26 @@ struct BreakdownView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 6) {
             ForEach(items, id: \.0) { name, val in
                 if let val {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         Text(name)
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .frame(width: 40, alignment: .leading)
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
                                 RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color(.systemGray5))
+                                    .fill(Color(.systemFill))
                                 RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color.oceanPrimary.opacity(0.7))
+                                    .fill(Color.appleBlue.opacity(0.85))
                                     .frame(width: geo.size.width * min(max(val / 100, 0), 1))
                             }
                         }
                         .frame(height: 6)
                         Text(String(format: "%.0f", val))
-                            .font(.caption2.monospacedDigit())
+                            .font(.system(size: 11).monospacedDigit())
                             .foregroundStyle(.secondary)
                             .frame(width: 24, alignment: .trailing)
                     }
@@ -210,18 +214,23 @@ struct HourlyScoreSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("時間帯スコア", systemImage: "chart.bar.fill")
-                .font(.headline)
+                .font(.system(size: 15, weight: .semibold))
+                .tracking(-0.2)
+                .foregroundStyle(.primary)
+
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .bottom, spacing: 6) {
+                HStack(alignment: .bottom, spacing: 5) {
                     ForEach(scores, id: \.hour) { s in
-                        VStack(spacing: 4) {
+                        VStack(spacing: 3) {
                             if s.bestTimeFlag == 1 {
                                 Image(systemName: "star.fill")
-                                    .font(.system(size: 9))
-                                    .foregroundStyle(.yellow)
+                                    .font(.system(size: 8))
+                                    .foregroundStyle(Color.appleBlue)
                             }
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(barColor(s.score).opacity(s.bestTimeFlag == 1 ? 1.0 : 0.7))
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(s.bestTimeFlag == 1
+                                      ? barColor(s.score)
+                                      : barColor(s.score).opacity(0.45))
                                 .frame(width: 22, height: max(4, CGFloat(s.score) * 0.72))
                             Text("\(s.hour)")
                                 .font(.system(size: 9))
@@ -235,7 +244,7 @@ struct HourlyScoreSection: View {
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     private func barColor(_ score: Int) -> Color {
@@ -254,7 +263,10 @@ struct TideChartSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("タイドグラフ", systemImage: "water.waves")
-                .font(.headline)
+                .font(.system(size: 15, weight: .semibold))
+                .tracking(-0.2)
+                .foregroundStyle(.primary)
+
             Chart {
                 ForEach(weather) { w in
                     if let tide = w.tideLevel {
@@ -264,7 +276,7 @@ struct TideChartSection: View {
                         )
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [Color.oceanPrimary.opacity(0.25), Color.oceanPrimary.opacity(0.05)],
+                                colors: [Color.appleBlue.opacity(0.20), Color.appleBlue.opacity(0.02)],
                                 startPoint: .top, endPoint: .bottom
                             )
                         )
@@ -273,7 +285,7 @@ struct TideChartSection: View {
                             x: .value("時刻", w.hour),
                             y: .value("潮位", tide)
                         )
-                        .foregroundStyle(Color.oceanPrimary)
+                        .foregroundStyle(Color.appleBlue)
                         .interpolationMethod(.catmullRom)
                         .lineStyle(StrokeStyle(lineWidth: 2))
                     }
@@ -302,14 +314,14 @@ struct TideChartSection: View {
             .chartXAxis {
                 AxisMarks(values: [0, 6, 12, 18, 23]) { v in
                     AxisValueLabel { Text("\(v.as(Int.self) ?? 0)時") }
-                    AxisGridLine().foregroundStyle(Color(.systemGray5))
+                    AxisGridLine().foregroundStyle(Color(.systemFill))
                 }
             }
             .frame(height: 160)
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     private var sunriseHour: Int? {
@@ -324,7 +336,6 @@ struct TideChartSection: View {
 
 struct WeatherTableSection: View {
     let weather: [HourlyWeather]
-
     private let filteredWeather: [HourlyWeather]
 
     init(weather: [HourlyWeather]) {
@@ -335,7 +346,10 @@ struct WeatherTableSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("天気・風・波", systemImage: "wind")
-                .font(.headline)
+                .font(.system(size: 15, weight: .semibold))
+                .tracking(-0.2)
+                .foregroundStyle(.primary)
+
             ScrollView(.horizontal, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     headerRow
@@ -347,7 +361,7 @@ struct WeatherTableSection: View {
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     private var headerRow: some View {
@@ -359,7 +373,7 @@ struct WeatherTableSection: View {
             cell("潮位",   width: 54, isHeader: true)
             cell("潮回り", width: 64, isHeader: true)
         }
-        .background(Color.oceanPrimary.opacity(0.08))
+        .background(Color(.tertiarySystemFill))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -372,15 +386,15 @@ struct WeatherTableSection: View {
             cell(w.tideLevel.map   { "\(Int($0))cm" } ?? "-", width: 54)
             cell(w.tideCycle ?? "-", width: 64)
         }
-        .background(isEven ? Color(.systemGray6) : Color.clear)
+        .background(isEven ? Color(.systemFill) : Color.clear)
     }
 
     private func cell(_ text: String, width: CGFloat, isHeader: Bool = false) -> some View {
         Text(text)
-            .font(isHeader ? .caption.weight(.semibold) : .caption)
-            .foregroundStyle(isHeader ? Color.oceanDeep : Color.primary)
+            .font(isHeader ? .system(size: 12, weight: .semibold) : .system(size: 12))
+            .foregroundStyle(isHeader ? .primary : .secondary)
             .frame(width: width, alignment: .center)
-            .padding(.vertical, 6)
+            .padding(.vertical, 7)
     }
 }
 
@@ -392,39 +406,43 @@ struct FishSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("今の時期に狙える魚", systemImage: "fish.fill")
-                .font(.headline)
+                .font(.system(size: 15, weight: .semibold))
+                .tracking(-0.2)
+                .foregroundStyle(.primary)
+
             VStack(spacing: 8) {
                 ForEach(fish) { f in
                     HStack(alignment: .center, spacing: 12) {
                         ZStack {
                             Circle()
-                                .fill(Color.oceanAccent.opacity(0.1))
+                                .fill(Color(.tertiarySystemFill))
                             Image(systemName: "fish.fill")
                                 .font(.system(size: 16))
-                                .foregroundStyle(Color.oceanAccent)
+                                .foregroundStyle(Color.appleBlue)
                         }
                         .frame(width: 40, height: 40)
 
                         VStack(alignment: .leading, spacing: 3) {
                             Text(f.fish)
-                                .font(.subheadline.weight(.semibold))
+                                .font(.system(size: 15, weight: .semibold))
+                                .tracking(-0.2)
                             Text("仕掛: \(f.method)")
-                                .font(.caption)
+                                .font(.system(size: 13))
                                 .foregroundStyle(.secondary)
                             Text("餌: \(f.bait)")
-                                .font(.caption)
+                                .font(.system(size: 13))
                                 .foregroundStyle(.secondary)
                         }
                         Spacer(minLength: 0)
                     }
-                    .padding(10)
-                    .background(Color.oceanAccent.opacity(0.05))
+                    .padding(12)
+                    .background(Color(.tertiarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
         }
         .padding(16)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }

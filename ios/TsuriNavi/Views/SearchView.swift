@@ -79,7 +79,7 @@ struct SearchView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .tint(.oceanPrimary)
+                .tint(.appleBlue)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -94,7 +94,7 @@ struct SearchView: View {
                     in: 10...500,
                     step: 10
                 )
-                .tint(.oceanPrimary)
+                .tint(.appleBlue)
             }
 
             Button(action: { Task { await vm.search() } }) {
@@ -103,7 +103,7 @@ struct SearchView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.oceanPrimary)
+            .tint(.appleBlue)
             .controlSize(.large)
         }
         .padding(16)
